@@ -1,0 +1,5 @@
+/* client/src/Dashboard.css */
+.dashboard-button:hover {
+    background-color: #e07b00;
+    transform: scale(1.05);
+}
