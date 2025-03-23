@@ -1,25 +1,77 @@
-// client/src/Navbar.js
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 
 const Navbar = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
+  const location = useLocation(); // Get current path
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
     navigate('/');
   };
+
+  const isActive = (path) => location.pathname === path; // Check if path matches
 
   return (
     <nav style={styles.navbar}>
       <Link to="/dashboard" style={styles.logo}>UmbraCare</Link>
       <div style={styles.navLinks}>
-        <Link to="/maternal-tracker" style={styles.navLink}>Maternal Tracker</Link>
-        <Link to="/period-tracker" style={styles.navLink}>Period Tracker</Link>
-        <Link to="/ivf-tracker" style={styles.navLink}>IVF Tracker</Link> {/* Changed from Chatbot */}
-        <Link to="/notifications" style={styles.navLink}>Notifications</Link>
-        <Link to="/profile" style={styles.navLink}>Profile</Link>
+        <Link
+          to="/pregnancy-postpartum-tracker"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/pregnancy-postpartum-tracker') ? styles.activeLink : {}),
+          }}
+        >
+          Pregnancy & Postpartum Tracker
+        </Link>
+        <Link
+          to="/period-tracker"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/period-tracker') ? styles.activeLink : {}),
+          }}
+        >
+          Period Tracker
+        </Link>
+        <Link
+          to="/ivf-tracker"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/ivf-tracker') ? styles.activeLink : {}),
+          }}
+        >
+          IVF Tracker
+        </Link>
+        <Link
+          to="/notifications"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/notifications') ? styles.activeLink : {}),
+          }}
+        >
+          Notifications
+        </Link>
+        <Link
+          to="/profile"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/profile') ? styles.activeLink : {}),
+          }}
+        >
+          Profile
+        </Link>
+        <Link
+          to="/doctor-consultation"
+          style={{
+            ...styles.navLink,
+            ...(isActive('/doctor-consultation') ? styles.activeLink : {}),
+          }}
+        >
+          Doctor Consultation
+        </Link>
         <button onClick={handleLogout} style={styles.logoutButton}>
           <FaSignOutAlt style={{ marginRight: '5px' }} /> Logout
         </button>
@@ -58,7 +110,13 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     fontSize: '16px',
-    transition: 'color 0.3s',
+    transition: 'color 0.3s, background-color 0.3s',
+    padding: '5px 10px',
+    borderRadius: '5px',
+  },
+  activeLink: {
+    backgroundColor: '#fff',
+    color: '#ff8c00', // Highlighted style
   },
   logoutButton: {
     display: 'flex',

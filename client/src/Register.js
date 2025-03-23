@@ -1,33 +1,46 @@
 // client/src/Register.js
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from './background.jpg'; // Import the background image
+import backgroundImage from './background.jpg';
 
 const Register = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/register', {
-        email,
-        password,
-      });
-      setMessage(response.data);
-    } catch (error) {
-      setMessage('Error: ' + (error.response?.data || 'Something went wrong'));
+      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
+      console.log('Register Response:', response.data);
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Registration failed');
+      console.error('Register Error:', err.response?.data);
     }
   };
 
   return (
     <div style={styles.container}>
-      <div style={styles.formContainer}>
+      <div style={styles.registerContainer}>
         <h2 style={styles.heading}>Welcome to UmbraCare</h2>
         <p style={styles.subheading}>Register to start your maternal health journey</p>
-        <form onSubmit={handleRegister} style={styles.form}>
-          <div style={styles.inputGroup}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.formGroup}>
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={styles.input}
+              required
+            />
+          </div>
+          <div style={styles.formGroup}>
             <input
               type="email"
               placeholder="Email"
@@ -37,7 +50,7 @@ const Register = () => {
               required
             />
           </div>
-          <div style={styles.inputGroup}>
+          <div style={styles.formGroup}>
             <input
               type="password"
               placeholder="Password"
@@ -47,15 +60,11 @@ const Register = () => {
               required
             />
           </div>
-          <button type="submit" style={styles.button}>
-            Register
-          </button>
+          <button type="submit" style={styles.button}>Register</button>
         </form>
-        <p style={{ ...styles.message, color: message.includes('Error') ? 'red' : 'green' }}>
-          {message}
-        </p>
+        {error && <p style={styles.error}>{error}</p>}
         <p style={styles.loginLink}>
-          Already have an account? <a href="/" style={styles.link}>Login here</a>
+          Already have an account? <Link to="/" style={styles.link}>Login here</Link>
         </p>
       </div>
     </div>
@@ -68,20 +77,22 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url(${backgroundImage})`, // Add background image
+    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url(${backgroundImage})`,
     backgroundSize: 'cover',
     backgroundPosition: '40% 60%',
+    backgroundRepeat: 'no-repeat',
     fontFamily: "'Poppins', sans-serif",
+    boxSizing: 'border-box',
   },
-  formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly transparent background
+  registerContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '400px',
     textAlign: 'center',
     border: '2px solid #ff8c00',
+    width: '100%',
+    maxWidth: '400px',
   },
   heading: {
     fontSize: '28px',
@@ -99,30 +110,32 @@ const styles = {
     flexDirection: 'column',
     gap: '15px',
   },
-  inputGroup: {
-    width: '100%',
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
   },
   input: {
-    width: '100%',
-    padding: '12px',
+    padding: '10px',
     fontSize: '16px',
-    border: '1px solid #ff8c00',
     borderRadius: '5px',
-    outline: 'none',
-    transition: 'border-color 0.3s',
+    border: '1px solid #ccc',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   button: {
     backgroundColor: '#ff8c00',
     color: '#fff',
-    padding: '12px',
+    padding: '10px 20px',
     fontSize: '16px',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.3s',
   },
-  message: {
-    marginTop: '15px',
+  error: {
+    color: 'red',
+    marginTop: '10px',
     fontSize: '14px',
   },
   loginLink: {
@@ -133,7 +146,6 @@ const styles = {
   link: {
     color: '#ff8c00',
     textDecoration: 'none',
-    fontWeight: '500',
   },
 };
 

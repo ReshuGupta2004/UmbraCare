@@ -1,19 +1,18 @@
 // client/src/PeriodTracker.js
 import React, { useState } from 'react';
-import backgroundImage from './background.jpg';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 const PeriodTracker = () => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [cycleLength, setCycleLength] = useState(28); // Default cycle length
-  const [prediction, setPrediction] = useState('');
+  const [startDate, setStartDate] = useState(new Date());
+  const [cycleLength, setCycleLength] = useState(28);
+  const [result, setResult] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const start = new Date(startDate);
-    const nextStart = new Date(start);
-    nextStart.setDate(start.getDate() + parseInt(cycleLength));
-    setPrediction(`Next period predicted: ${nextStart.toDateString()}`);
+    const nextPeriod = new Date(startDate);
+    nextPeriod.setDate(startDate.getDate() + parseInt(cycleLength));
+    setResult(`Your next period is expected around ${nextPeriod.toDateString()}.`);
   };
 
   return (
@@ -21,41 +20,25 @@ const PeriodTracker = () => {
       <div style={styles.trackerContainer}>
         <h2 style={styles.heading}>Period Tracker</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Start Date:</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              style={styles.input}
-              required
-            />
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Last Period Start Date:</label>
+            <Calendar onChange={setStartDate} value={startDate} />
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>End Date:</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              style={styles.input}
-              required
-            />
-          </div>
-          <div style={styles.inputGroup}>
+          <div style={styles.formGroup}>
             <label style={styles.label}>Cycle Length (days):</label>
             <input
               type="number"
               value={cycleLength}
               onChange={(e) => setCycleLength(e.target.value)}
               style={styles.input}
-              min="20"
-              max="40"
+              min="21"
+              max="35"
               required
             />
           </div>
-          <button type="submit" style={styles.button}>Track</button>
+          <button type="submit" style={styles.button}>Track Period</button>
         </form>
-        {prediction && <p style={styles.message}>{prediction}</p>}
+        {result && <p style={styles.result}>{result}</p>}
       </div>
     </div>
   );
@@ -66,22 +49,19 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 'calc(100vh - 80px)',
-    paddingTop: '80px',
-    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: '40% 60%',
+    minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
+    boxSizing: 'border-box',
   },
   trackerContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '500px',
     textAlign: 'center',
     border: '2px solid #ff8c00',
+    width: '100%',
+    maxWidth: '600px',
   },
   heading: {
     fontSize: '28px',
@@ -94,35 +74,38 @@ const styles = {
     flexDirection: 'column',
     gap: '15px',
   },
-  inputGroup: {
+  formGroup: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: '5px',
   },
   label: {
     fontSize: '16px',
-    color: '#666',
+    color: '#333',
   },
   input: {
-    padding: '12px',
+    padding: '10px',
     fontSize: '16px',
-    border: '1px solid #ff8c00',
     borderRadius: '5px',
-    outline: 'none',
+    border: '1px solid #ccc',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   button: {
     backgroundColor: '#ff8c00',
     color: '#fff',
-    padding: '12px',
+    padding: '10px 20px',
     fontSize: '16px',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+    transition: 'background-color 0.3s',
   },
-  message: {
-    marginTop: '15px',
-    fontSize: '14px',
-    color: '#ff8c00',
+  result: {
+    marginTop: '20px',
+    fontSize: '16px',
+    color: '#333',
   },
 };
 

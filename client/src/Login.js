@@ -1,40 +1,36 @@
 // client/src/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import backgroundImage from './background.jpg';
 
 const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post('http://localhost:5000/api/login', {
-      email,
-      password,
-    });
-    setMessage(response.data);
-    if (response.data === 'Login successful') {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/api/users/login', { email, password });
+      console.log('Login Response:', response.data);
+      localStorage.setItem('token', response.data.token);
       setIsLoggedIn(true);
       navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Login failed');
+      console.error('Login Error:', err.response?.data);
     }
-  } catch (error) {
-    setMessage('Error: ' + (error.response?.data || 'Something went wrong'));
-  }
-};
+  };
 
   return (
     <div style={styles.container}>
-      <div style={styles.formContainer}>
+      <div style={styles.loginContainer}>
         <h2 style={styles.heading}>Welcome to UmbraCare</h2>
         <p style={styles.subheading}>Login to track your maternal health journey</p>
-        <form onSubmit={handleLogin} style={styles.form}>
-          <div style={styles.inputGroup}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.formGroup}>
             <input
               type="email"
               placeholder="Email"
@@ -44,7 +40,7 @@ const handleLogin = async (e) => {
               required
             />
           </div>
-          <div style={styles.inputGroup}>
+          <div style={styles.formGroup}>
             <input
               type="password"
               placeholder="Password"
@@ -54,15 +50,11 @@ const handleLogin = async (e) => {
               required
             />
           </div>
-          <button type="submit" style={styles.button}>
-            Login
-          </button>
+          <button type="submit" style={styles.button}>Login</button>
         </form>
-        <p style={{ ...styles.message, color: message.includes('Error') ? 'red' : 'green' }}>
-          {message}
-        </p>
+        {error && <p style={styles.error}>{error}</p>}
         <p style={styles.registerLink}>
-          Don't have an account? <a href="/register" style={styles.link}>Register here</a>
+          Don’t have an account? <Link to="/register" style={styles.link}>Register here</Link>
         </p>
       </div>
     </div>
@@ -80,16 +72,17 @@ const styles = {
     backgroundPosition: '40% 60%',
     backgroundRepeat: 'no-repeat',
     fontFamily: "'Poppins', sans-serif",
+    boxSizing: 'border-box',
   },
-  formContainer: {
+  loginContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '400px',
     textAlign: 'center',
     border: '2px solid #ff8c00',
+    width: '100%',
+    maxWidth: '400px',
   },
   heading: {
     fontSize: '28px',
@@ -107,30 +100,32 @@ const styles = {
     flexDirection: 'column',
     gap: '15px',
   },
-  inputGroup: {
-    width: '100%',
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
   },
   input: {
-    width: '100%',
-    padding: '12px',
+    padding: '10px',
     fontSize: '16px',
-    border: '1px solid #ff8c00',
     borderRadius: '5px',
-    outline: 'none',
-    transition: 'border-color 0.3s',
+    border: '1px solid #ccc',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   button: {
     backgroundColor: '#ff8c00',
     color: '#fff',
-    padding: '12px',
+    padding: '10px 20px',
     fontSize: '16px',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.3s',
   },
-  message: {
-    marginTop: '15px',
+  error: {
+    color: 'red',
+    marginTop: '10px',
     fontSize: '14px',
   },
   registerLink: {
@@ -141,7 +136,6 @@ const styles = {
   link: {
     color: '#ff8c00',
     textDecoration: 'none',
-    fontWeight: '500',
   },
 };
 

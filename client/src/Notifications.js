@@ -1,35 +1,49 @@
 // client/src/Notifications.js
-import React, { useState } from 'react'; // Removed useEffect
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState(() => {
-    const savedNotifications = localStorage.getItem('notifications');
-    return savedNotifications ? JSON.parse(savedNotifications) : [];
-  });
+  const [notifications, setNotifications] = useState([]);
+  const [error, setError] = useState('');
 
-  const handleClear = (index) => {
-    const updatedNotifications = notifications.filter((_, i) => i !== index);
-    setNotifications(updatedNotifications);
-    localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-  };
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token found. Please log in again.');
+        }
+        console.log('Token for fetching notifications:', token);
+
+        const response = await axios.get('http://localhost:5000/api/notifications', {
+          headers: {
+            'x-auth-token': token,
+          },
+        });
+        setNotifications(response.data);
+      } catch (err) {
+        console.error('Error fetching notifications:', err.response?.data || err.message);
+        setError(`Error fetching notifications: ${err.response?.data?.msg || err.message}`);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   return (
     <div style={styles.container}>
       <div style={styles.notificationsContainer}>
         <h2 style={styles.heading}>Notifications</h2>
+        {error && <p style={styles.error}>{error}</p>}
         {notifications.length === 0 ? (
-          <p style={styles.noNotifications}>No notifications available.</p>
+          <p style={styles.info}>No notifications available.</p>
         ) : (
           <ul style={styles.notificationList}>
-            {notifications.map((notification, index) => (
-              <li key={index} style={styles.notificationItem}>
-                {notification}
-                <button
-                  onClick={() => handleClear(index)}
-                  style={styles.clearButton}
-                >
-                  Clear
-                </button>
+            {notifications.map((notification) => (
+              <li key={notification._id} style={styles.notificationItem}>
+                <strong>{notification.type === 'ivf_medication' ? 'Medication Reminder' : 'Appointment Reminder'}:</strong> {notification.message}
+                <br />
+                <small>{new Date(notification.createdAt).toLocaleString()}</small>
               </li>
             ))}
           </ul>
@@ -45,9 +59,6 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    paddingTop: '80px',
-    paddingBottom: '20px',
-    backgroundColor: '#f5f5f5',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
   },
@@ -67,9 +78,14 @@ const styles = {
     marginBottom: '20px',
     fontWeight: '600',
   },
-  noNotifications: {
+  info: {
     fontSize: '16px',
     color: '#333',
+  },
+  error: {
+    fontSize: '16px',
+    color: 'red',
+    marginBottom: '20px',
   },
   notificationList: {
     listStyleType: 'none',
@@ -77,22 +93,11 @@ const styles = {
     textAlign: 'left',
   },
   notificationItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
     padding: '10px',
-    borderBottom: '1px solid #ccc',
-    fontSize: '16px',
-    color: '#333',
-  },
-  clearButton: {
-    backgroundColor: '#ff8c00',
-    color: '#fff',
-    padding: '5px 10px',
-    border: 'none',
+    marginBottom: '10px',
     borderRadius: '5px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s',
+    border: '1px solid #ddd',
   },
 };
 

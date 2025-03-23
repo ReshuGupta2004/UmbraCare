@@ -1,30 +1,59 @@
 // client/src/IVFTracker.js
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const IVFTracker = () => {
-  const [transferDate, setTransferDate] = useState('');
-  const [transferType, setTransferType] = useState('');
+  const [medication, setMedication] = useState('');
+  const [appointment, setAppointment] = useState('');
   const [result, setResult] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!transferDate || !transferType) {
-      setResult('Please select a date and type of transfer.');
-      return;
-    }
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found. Please log in again.');
+      }
+      console.log('Token:', token);
 
-    const selectedDate = new Date(transferDate);
-    // Removed unused diffDays calculation
-    let pregnancyDuration = '';
-    if (transferType === 'day3') {
-      pregnancyDuration = 'Pregnant for 2 weeks and 3 days';
-    } else if (transferType === 'day5') {
-      pregnancyDuration = 'Pregnant for 2 weeks and 5 days';
-    } else if (transferType === 'eggRetrieval') {
-      pregnancyDuration = 'Pregnant for 2 weeks';
-    }
+      // Send medication reminder to backend
+      const medResponse = await axios.post(
+        'http://localhost:5000/api/notifications',
+        {
+          type: 'ivf_medication',
+          message: `Medication Reminder: ${medication}`,
+        },
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
+      );
+      console.log('Medication Response:', medResponse.data);
 
-    setResult(`Date of Transfer: ${selectedDate.toDateString()}, Type of Transfer: ${transferType.replace('day', 'Day ').replace('eggRetrieval', 'Day of Egg Retrieval')}, ${pregnancyDuration}`);
+      // Send appointment reminder to backend
+      const apptResponse = await axios.post(
+        'http://localhost:5000/api/notifications',
+        {
+          type: 'ivf_appointment',
+          message: `Next Appointment: ${appointment}`,
+        },
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
+      );
+      console.log('Appointment Response:', apptResponse.data);
+
+      setResult(`Medication Reminder: ${medication}\nNext Appointment: ${appointment}`);
+      setShowPopup(true); // Show popup
+      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+    } catch (err) {
+      console.error('Error saving IVF data:', err.response?.data || err.message);
+      setResult(`Error saving data: ${err.response?.data?.msg || err.message}`);
+    }
   };
 
   return (
@@ -33,32 +62,35 @@ const IVFTracker = () => {
         <h2 style={styles.heading}>IVF Tracker</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Date of Transfer:</label>
+            <label style={styles.label}>Medication Reminder:</label>
             <input
-              type="date"
-              value={transferDate}
-              onChange={(e) => setTransferDate(e.target.value)}
+              type="text"
+              value={medication}
+              onChange={(e) => setMedication(e.target.value)}
               style={styles.input}
+              placeholder="e.g., Take Follicle Stimulating Hormone at 8 AM"
               required
             />
           </div>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Type of Transfer:</label>
-            <select
-              value={transferType}
-              onChange={(e) => setTransferType(e.target.value)}
+            <label style={styles.label}>Next Appointment:</label>
+            <input
+              type="text"
+              value={appointment}
+              onChange={(e) => setAppointment(e.target.value)}
               style={styles.input}
+              placeholder="e.g., Ultrasound on 2025-03-25"
               required
-            >
-              <option value="">Select Type</option>
-              <option value="day3">Day 3 Embryo Transfer</option>
-              <option value="day5">Day 5 Embryo Transfer</option>
-              <option value="eggRetrieval">Day of Egg Retrieval</option>
-            </select>
+            />
           </div>
-          <button type="submit" style={styles.button}>Calculate</button>
+          <button type="submit" style={styles.button}>Set Reminder</button>
         </form>
         {result && <p style={styles.result}>{result}</p>}
+        {showPopup && (
+          <div style={styles.popup}>
+            <p>Reminder added successfully!</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -70,9 +102,6 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    paddingTop: '80px',
-    paddingBottom: '20px',
-    backgroundColor: '#f5f5f5',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
   },
@@ -129,6 +158,18 @@ const styles = {
     marginTop: '20px',
     fontSize: '16px',
     color: '#333',
+    whiteSpace: 'pre-wrap',
+  },
+  popup: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    backgroundColor: '#4caf50',
+    color: '#fff',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+    zIndex: 1000,
   },
 };
 
