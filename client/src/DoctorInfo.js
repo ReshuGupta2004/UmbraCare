@@ -1,13 +1,13 @@
-// client/src/DoctorConsultation.js
+// client/src/DoctorInfo.js
 import React from 'react';
 
-const DoctorConsultation = () => {
+const DoctorInfo = () => {
   return (
     <div style={styles.container}>
-      <div style={styles.consultationContainer}>
-        <h2 style={styles.heading}>Doctor Consultation</h2>
+      <div style={styles.infoContainer}>
+        <h2 style={styles.heading}>Doctor Info</h2>
         <p style={styles.info}>
-          Schedule a consultation with a gynecologist or nutritionist. This feature is coming soon!
+          Find information about gynecologists and nutritionists. This feature is coming soon!
         </p>
       </div>
     </div>
@@ -23,7 +23,7 @@ const styles = {
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
   },
-  consultationContainer: {
+  infoContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '40px',
     borderRadius: '10px',
@@ -45,4 +45,4 @@ const styles = {
   },
 };
 
-export default DoctorConsultation;
+export default DoctorInfo;

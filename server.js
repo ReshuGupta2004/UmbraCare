@@ -13,7 +13,7 @@ app.use(cors({origin: "*"}));
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect('mongodb+srv://nishantk1103:i1yScoWJjevbntYx@cluster0.drlel.mongodb.net/')
+mongoose.connect('mongodb+srv://riyanshigupta2004:Qf7ZzNW6OeXjyYGD@cluster0.sx8m8.mongodb.net/')
   .then(() => {
     console.log('MongoDB connected');
   })

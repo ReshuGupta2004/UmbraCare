@@ -4,50 +4,66 @@ import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   return (
-    <div style={styles.dashboardContainer}>
-      <h2 style={styles.heading}>UmbraCare Dashboard</h2>
-      <div style={styles.buttonContainer}>
-        <Link to="/pregnancy-postpartum-tracker" style={styles.button}>Pregnancy & Postpartum Tracker</Link>
-        <Link to="/period-tracker" style={styles.button}>Period Tracker</Link>
-        <Link to="/ivf-tracker" style={styles.button}>IVF Tracker</Link>
-        <Link to="/notifications" style={styles.button}>Notifications</Link>
-        <Link to="/profile" style={styles.button}>User Profile</Link>
-        <Link to="/doctor-consultation" style={styles.button}>Doctor Consultation</Link>
+    <div style={styles.container}>
+      <div style={styles.dashboard}>
+        <h1 style={styles.heading}>Welcome to UmbraCare</h1>
+        <p style={styles.subheading}>Your personalized health tracking dashboard</p>
+        <div style={styles.links}>
+          <Link to="/pregnancy-postpartum-tracker" style={styles.link}>Pregnancy & Postpartum Tracker</Link>
+          <Link to="/period-tracker" style={styles.link}>Period Tracker</Link>
+          <Link to="/ivf-tracker" style={styles.link}>IVF Tracker</Link>
+          <Link to="/notifications" style={styles.link}>Notifications</Link>
+          <Link to="/profile" style={styles.link}>Profile</Link>
+          <Link to="/doctor-info" style={styles.link}>Doctor Info</Link> {/* Updated from Doctor Consultation */}
+        </div>
       </div>
     </div>
   );
 };
 
 const styles = {
-  dashboardContainer: {
+  container: {
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
+    minHeight: '100vh',
+    fontFamily: "'Poppins', sans-serif",
+    boxSizing: 'border-box',
+    paddingTop: '80px',
+  },
+  dashboard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '40px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    textAlign: 'center',
+    border: '2px solid #ff8c00',
+    width: '100%',
+    maxWidth: '600px',
   },
   heading: {
-    fontSize: '28px',
+    fontSize: '32px',
     color: '#ff8c00',
-    marginBottom: '30px',
+    marginBottom: '10px',
     fontWeight: '600',
   },
-  buttonContainer: {
+  subheading: {
+    fontSize: '18px',
+    color: '#666',
+    marginBottom: '30px',
+  },
+  links: {
     display: 'flex',
     flexDirection: 'column',
     gap: '15px',
-    width: '100%',
-    maxWidth: '400px',
   },
-  button: {
+  link: {
     backgroundColor: '#ff8c00',
     color: '#fff',
-    padding: '15px 20px',
-    fontSize: '16px',
-    border: 'none',
+    padding: '12px 20px',
     borderRadius: '5px',
-    cursor: 'pointer',
     textDecoration: 'none',
-    textAlign: 'center',
+    fontSize: '16px',
     transition: 'background-color 0.3s',
   },
 };

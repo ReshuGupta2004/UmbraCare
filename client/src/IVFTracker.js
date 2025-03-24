@@ -1,59 +1,45 @@
 // client/src/IVFTracker.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import { FaCalendarAlt } from 'react-icons/fa';
 
 const IVFTracker = () => {
-  const [medication, setMedication] = useState('');
-  const [appointment, setAppointment] = useState('');
+  const [transferDate, setTransferDate] = useState(new Date('2025-03-22')); // Default to 22nd March 2025
+  const [showTransferCalendar, setShowTransferCalendar] = useState(false);
+  const [transferType, setTransferType] = useState('');
   const [result, setResult] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found. Please log in again.');
-      }
-      console.log('Token:', token);
-
-      // Send medication reminder to backend
-      const medResponse = await axios.post(
-        'http://localhost:5000/api/notifications',
-        {
-          type: 'ivf_medication',
-          message: `Medication Reminder: ${medication}`,
-        },
-        {
-          headers: {
-            'x-auth-token': token,
-          },
-        }
-      );
-      console.log('Medication Response:', medResponse.data);
-
-      // Send appointment reminder to backend
-      const apptResponse = await axios.post(
-        'http://localhost:5000/api/notifications',
-        {
-          type: 'ivf_appointment',
-          message: `Next Appointment: ${appointment}`,
-        },
-        {
-          headers: {
-            'x-auth-token': token,
-          },
-        }
-      );
-      console.log('Appointment Response:', apptResponse.data);
-
-      setResult(`Medication Reminder: ${medication}\nNext Appointment: ${appointment}`);
-      setShowPopup(true); // Show popup
-      setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
-    } catch (err) {
-      console.error('Error saving IVF data:', err.response?.data || err.message);
-      setResult(`Error saving data: ${err.response?.data?.msg || err.message}`);
+    if (!transferDate || !transferType) {
+      setResult('Please select a transfer date and type.');
+      return;
     }
+
+    const today = new Date('2025-03-22'); // Current date for calculation (can be dynamic: new Date())
+    const diffTime = Math.abs(today - transferDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let pregnancyDuration = '';
+    if (transferType === 'day3') {
+      const totalDays = diffDays + 17; // 2 weeks 3 days = 17 days
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+      pregnancyDuration = `${weeks} weeks and ${days} days`;
+    } else if (transferType === 'day5') {
+      const totalDays = diffDays + 19; // 2 weeks 5 days = 19 days
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+      pregnancyDuration = `${weeks} weeks and ${days} days`;
+    } else if (transferType === 'eggRetrieval') {
+      const totalDays = diffDays + 14; // 2 weeks = 14 days
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+      pregnancyDuration = `${weeks} weeks and ${days} days`;
+    }
+
+    setResult(`Based on your transfer date (${transferDate.toDateString()}) and type (${transferType === 'day3' ? 'Day 3 Embryo Transfer' : transferType === 'day5' ? 'Day 5 Embryo Transfer' : 'Day of Egg Retrieval'}), you are pregnant for ${pregnancyDuration}.`);
   };
 
   return (
@@ -62,35 +48,48 @@ const IVFTracker = () => {
         <h2 style={styles.heading}>IVF Tracker</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Medication Reminder:</label>
-            <input
-              type="text"
-              value={medication}
-              onChange={(e) => setMedication(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., Take Follicle Stimulating Hormone at 8 AM"
-              required
-            />
+            <label style={styles.label}>Date of Transfer:</label>
+            <div style={styles.calendarInputContainer}>
+              <input
+                type="text"
+                value={transferDate.toDateString()}
+                readOnly
+                style={styles.input}
+                placeholder="Select transfer date"
+              />
+              <FaCalendarAlt
+                style={styles.calendarIcon}
+                onClick={() => setShowTransferCalendar(!showTransferCalendar)}
+              />
+            </div>
+            {showTransferCalendar && (
+              <Calendar
+                onChange={(date) => {
+                  setTransferDate(date);
+                  setShowTransferCalendar(false);
+                }}
+                value={transferDate}
+                style={styles.calendar}
+              />
+            )}
           </div>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Next Appointment:</label>
-            <input
-              type="text"
-              value={appointment}
-              onChange={(e) => setAppointment(e.target.value)}
+            <label style={styles.label}>Type of Transfer:</label>
+            <select
+              value={transferType}
+              onChange={(e) => setTransferType(e.target.value)}
               style={styles.input}
-              placeholder="e.g., Ultrasound on 2025-03-25"
               required
-            />
+            >
+              <option value="">Select type</option>
+              <option value="day3">Day 3 Embryo Transfer</option>
+              <option value="day5">Day 5 Embryo Transfer</option>
+              <option value="eggRetrieval">Day of Egg Retrieval</option>
+            </select>
           </div>
-          <button type="submit" style={styles.button}>Set Reminder</button>
+          <button type="submit" style={styles.button}>Calculate</button>
         </form>
         {result && <p style={styles.result}>{result}</p>}
-        {showPopup && (
-          <div style={styles.popup}>
-            <p>Reminder added successfully!</p>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -144,6 +143,24 @@ const styles = {
     width: '100%',
     boxSizing: 'border-box',
   },
+  calendar: {
+    width: '100%',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+  },
+  calendarInputContainer: {
+    position: 'relative',
+    width: '100%',
+  },
+  calendarIcon: {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    fontSize: '20px',
+    color: '#ff8c00',
+    cursor: 'pointer',
+  },
   button: {
     backgroundColor: '#ff8c00',
     color: '#fff',
@@ -158,18 +175,6 @@ const styles = {
     marginTop: '20px',
     fontSize: '16px',
     color: '#333',
-    whiteSpace: 'pre-wrap',
-  },
-  popup: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    backgroundColor: '#4caf50',
-    color: '#fff',
-    padding: '10px 20px',
-    borderRadius: '5px',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-    zIndex: 1000,
   },
 };
 

@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { FaCalendarAlt } from 'react-icons/fa';
 
 const PeriodTracker = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [cycleLength, setCycleLength] = useState(28);
   const [result, setResult] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,7 +24,28 @@ const PeriodTracker = () => {
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
             <label style={styles.label}>Last Period Start Date:</label>
-            <Calendar onChange={setStartDate} value={startDate} />
+            <div style={styles.calendarInput}>
+              <input
+                type="text"
+                value={startDate.toDateString()}
+                readOnly
+                style={styles.input}
+              />
+              <FaCalendarAlt
+                onClick={() => setShowCalendar(!showCalendar)}
+                style={styles.calendarIcon}
+              />
+              {showCalendar && (
+                <Calendar
+                  onChange={(date) => {
+                    setStartDate(date);
+                    setShowCalendar(false);
+                  }}
+                  value={startDate}
+                  style={styles.calendar}
+                />
+              )}
+            </div>
           </div>
           <div style={styles.formGroup}>
             <label style={styles.label}>Cycle Length (days):</label>
@@ -91,6 +114,25 @@ const styles = {
     border: '1px solid #ccc',
     width: '100%',
     boxSizing: 'border-box',
+  },
+  calendarInput: {
+    position: 'relative',
+    width: '100%',
+  },
+  calendarIcon: {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    color: '#ff8c00',
+    fontSize: '20px',
+  },
+  calendar: {
+    position: 'absolute',
+    zIndex: 1000,
+    top: '100%',
+    left: 0,
   },
   button: {
     backgroundColor: '#ff8c00',

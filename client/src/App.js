@@ -9,7 +9,7 @@ import PeriodTracker from './PeriodTracker';
 import IVFTracker from './IVFTracker';
 import UserProfile from './UserProfile';
 import Chatbot from './Chatbot';
-import DoctorConsultation from './DoctorConsultation';
+import DoctorInfo from './DoctorInfo';
 import Notifications from './Notifications';
 import Layout from './Layout';
 
@@ -52,7 +52,7 @@ const App = () => {
                   <Route path="/ivf-tracker" element={<IVFTracker />} />
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/chatbot" element={<Chatbot />} />
-                  <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+                  <Route path="/doctor-info" element={<DoctorInfo />} />
                   <Route path="/notifications" element={<Notifications />} />
                 </Routes>
               </Layout>
