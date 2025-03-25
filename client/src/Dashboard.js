@@ -39,7 +39,7 @@ const Dashboard = () => {
         </div>
         
         <div style={styles.newsletterBox}>
-          <h3 style={styles.newsletterHeading}>Subscribe to Our Newsletter</h3>
+          <Link to="/newsletter" style={styles.newsletterHeading}>Subscribe to Our Newsletter</Link>
         </div>
       </div>
     </div>
@@ -124,10 +124,10 @@ const styles = {
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '30px',
     marginBottom: '30px',
-    '@media (max-width: 1000px)': {
+    '@media (maxWidth: 1000px)': {
       gridTemplateColumns: 'repeat(2, 1fr)',
     },
-    '@media (max-width: 600px)': {
+    '@media (maxWidth: 600px)': {
       gridTemplateColumns: 'repeat(1, 1fr)',
     },
   },
@@ -146,7 +146,7 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '300px',
+    // width: '300px',
     height: '220px',
   },
   icon: {
@@ -156,7 +156,7 @@ const styles = {
   newsletterBox: {
     backgroundColor: 'rgb(255, 140, 0)',
     borderRadius: '8px',
-    padding: '10px',
+    padding: '7px',
     height: '100%',
     width: '300px',
     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',

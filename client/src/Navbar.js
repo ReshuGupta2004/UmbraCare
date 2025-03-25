@@ -29,6 +29,7 @@ const Navbar = ({ setIsLoggedIn }) => {
         <Link to="/notifications" style={{ ...styles.navLink, ...(isActive('/notifications') ? styles.activeLink : {}) }}>Notifications</Link>
         <Link to="/profile" style={{ ...styles.navLink, ...(isActive('/profile') ? styles.activeLink : {}) }}>Profile</Link>
         <Link to="/about" style={{ ...styles.navLink, ...(isActive('/about') ? styles.activeLink : {}) }}>About Us</Link>
+        <Link to="/newsletter" style={{ ...styles.navLink, ...(isActive('/newsletter') ? styles.activeLink : {}) }}>Newsletter</Link>
         <button onClick={handleLogout} style={styles.logoutButton}><FaSignOutAlt style={{ marginRight: '5px' }} /> Logout</button>
       </div>
     </nav>

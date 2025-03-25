@@ -14,6 +14,7 @@ import Navbar from './Navbar';
 import SplashScreen from './SplashScreen';
 import Chatbot from './Chatbot';
 import AboutUs from './AboutUs';
+import Newsletter from './Newsletter';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/" />} />
               <Route path="/about" element={isLoggedIn ? <AboutUs /> : <Navigate to="/" />} />
               <Route path="/doctor-info" element={isLoggedIn ? <DoctorInfo /> : <Navigate to="/" />} />
+              <Route path="/newsletter" element={isLoggedIn ? <Newsletter /> : <Navigate to="/" />} />
             </Routes>
             {isLoggedIn && <Chatbot />}
           </>
