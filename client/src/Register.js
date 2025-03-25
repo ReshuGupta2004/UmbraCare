@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from './background.jpg';
 
-const Register = () => {
+const Register = ({ setIsLoggedIn }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,26 +13,26 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
-      console.log('Register Response:', response.data);
-      localStorage.setItem('token', response.data.token);
+      const res = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
+      localStorage.setItem('token', res.data.token);
+      setIsLoggedIn(true);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.msg || 'Registration failed');
-      console.error('Register Error:', err.response?.data);
     }
   };
 
   return (
     <div style={styles.container}>
-      <div style={styles.registerContainer}>
+      <div style={styles.formContainer}>
         <h2 style={styles.heading}>Welcome to UmbraCare</h2>
         <p style={styles.subheading}>Register to start your maternal health journey</p>
+        {error && <p style={styles.error}>{error}</p>}
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
+            <label style={styles.label}>Name:</label>
             <input
               type="text"
-              placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               style={styles.input}
@@ -41,9 +40,9 @@ const Register = () => {
             />
           </div>
           <div style={styles.formGroup}>
+            <label style={styles.label}>Email:</label>
             <input
               type="email"
-              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={styles.input}
@@ -51,9 +50,9 @@ const Register = () => {
             />
           </div>
           <div style={styles.formGroup}>
+            <label style={styles.label}>Password:</label>
             <input
               type="password"
-              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={styles.input}
@@ -62,9 +61,8 @@ const Register = () => {
           </div>
           <button type="submit" style={styles.button}>Register</button>
         </form>
-        {error && <p style={styles.error}>{error}</p>}
-        <p style={styles.loginLink}>
-          Already have an account? <Link to="/" style={styles.link}>Login here</Link>
+        <p style={styles.linkText}>
+          Already have an account? <Link to="/" style={styles.link}>Login</Link>
         </p>
       </div>
     </div>
@@ -77,15 +75,11 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: '40% 60%',
-    backgroundRepeat: 'no-repeat',
     fontFamily: "'Poppins', sans-serif",
-    boxSizing: 'border-box',
+    background: 'none',
   },
-  registerContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  formContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Increased opacity for better readability
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
@@ -113,7 +107,12 @@ const styles = {
   formGroup: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: '5px',
+  },
+  label: {
+    fontSize: '16px',
+    color: '#333',
   },
   input: {
     padding: '10px',
@@ -135,17 +134,17 @@ const styles = {
   },
   error: {
     color: 'red',
-    marginTop: '10px',
-    fontSize: '14px',
+    marginBottom: '15px',
   },
-  loginLink: {
+  linkText: {
     marginTop: '15px',
     fontSize: '14px',
-    color: '#666',
+    color: '#333',
   },
   link: {
     color: '#ff8c00',
     textDecoration: 'none',
+    fontWeight: 'bold',
   },
 };
 

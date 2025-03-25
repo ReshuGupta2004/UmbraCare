@@ -1,32 +1,27 @@
 // client/src/Chatbot.js
 import React, { useState } from 'react';
-import Chatbot from 'react-chatbot-kit';
-import 'react-chatbot-kit/build/main.css';
-import config from './config';
-import MessageParser from './MessageParser';
-import ActionProvider from './ActionProvider';
-import { FaRobot } from 'react-icons/fa';
+import { FaRobot } from 'react-icons/fa'; // Using a robot icon from react-icons
 
-const ChatbotComponent = () => {
-  const [showChatbot, setShowChatbot] = useState(false);
+const Chatbot = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleChatbot = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <div style={styles.chatbotContainer}>
-      {showChatbot && (
-        <div style={styles.chatbot}>
-          <Chatbot
-            config={config}
-            messageParser={MessageParser}
-            actionProvider={ActionProvider}
-          />
+      {isOpen && (
+        <div style={styles.chatbotWindow}>
+          <h3 style={styles.chatbotHeading}>UmbraCare Chatbot</h3>
+          <p style={styles.chatbotText}>Hello! How can I assist you today?</p>
+          {/* Add chatbot functionality here later */}
+          <button onClick={toggleChatbot} style={styles.closeButton}>Close</button>
         </div>
       )}
-      <button
-        onClick={() => setShowChatbot(!showChatbot)}
-        style={styles.chatbotButton}
-      >
+      <div style={styles.chatbotIcon} onClick={toggleChatbot}>
         <FaRobot size={30} />
-      </button>
+      </div>
     </div>
   );
 };
@@ -36,31 +31,49 @@ const styles = {
     position: 'fixed',
     bottom: '20px',
     right: '20px',
-    zIndex: 1000,
+    zIndex: 1000, // Ensure it appears above other elements
   },
-  chatbot: {
-    width: '300px',
-    height: '400px',
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-    borderRadius: '10px',
-    overflow: 'hidden',
-  },
-  chatbotButton: {
+  chatbotIcon: {
     backgroundColor: '#ff8c00',
     color: '#fff',
-    border: 'none',
+    padding: '15px',
     borderRadius: '50%',
-    width: '60px',
-    height: '60px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     cursor: 'pointer',
     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-    position: 'fixed',
-    bottom: '20px',
-    right: '20px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatbotWindow: {
+    backgroundColor: '#fff',
+    borderRadius: '10px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    padding: '20px',
+    width: '300px',
+    maxHeight: '400px',
+    overflowY: 'auto',
+    marginBottom: '10px',
+    border: '2px solid #ff8c00',
+  },
+  chatbotHeading: {
+    fontSize: '20px',
+    color: '#ff8c00',
+    marginBottom: '10px',
+    fontWeight: '600',
+  },
+  chatbotText: {
+    fontSize: '14px',
+    color: '#333',
+    marginBottom: '15px',
+  },
+  closeButton: {
+    backgroundColor: '#ff8c00',
+    color: '#fff',
+    padding: '8px 15px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
   },
 };
 
-export default ChatbotComponent;
+export default Chatbot;

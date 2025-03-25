@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from './background.jpg';
 
 const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
@@ -13,27 +12,26 @@ const Login = ({ setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', { email, password });
-      console.log('Login Response:', response.data);
-      localStorage.setItem('token', response.data.token);
+      const res = await axios.post('http://localhost:5000/api/users/login', { email, password });
+      localStorage.setItem('token', res.data.token);
       setIsLoggedIn(true);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.msg || 'Login failed');
-      console.error('Login Error:', err.response?.data);
     }
   };
 
   return (
     <div style={styles.container}>
-      <div style={styles.loginContainer}>
+      <div style={styles.formContainer}>
         <h2 style={styles.heading}>Welcome to UmbraCare</h2>
-        <p style={styles.subheading}>Login to track your maternal health journey</p>
+        <p style={styles.subheading}>Login to continue your maternal health journey</p>
+        {error && <p style={styles.error}>{error}</p>}
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
+            <label style={styles.label}>Email:</label>
             <input
               type="email"
-              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={styles.input}
@@ -41,9 +39,9 @@ const Login = ({ setIsLoggedIn }) => {
             />
           </div>
           <div style={styles.formGroup}>
+            <label style={styles.label}>Password:</label>
             <input
               type="password"
-              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={styles.input}
@@ -52,9 +50,8 @@ const Login = ({ setIsLoggedIn }) => {
           </div>
           <button type="submit" style={styles.button}>Login</button>
         </form>
-        {error && <p style={styles.error}>{error}</p>}
-        <p style={styles.registerLink}>
-          Don’t have an account? <Link to="/register" style={styles.link}>Register here</Link>
+        <p style={styles.linkText}>
+          Don't have an account? <Link to="/register" style={styles.link}>Register</Link>
         </p>
       </div>
     </div>
@@ -67,15 +64,11 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: '40% 60%',
-    backgroundRepeat: 'no-repeat',
     fontFamily: "'Poppins', sans-serif",
-    boxSizing: 'border-box',
+    background: 'none',
   },
-  loginContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  formContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Increased opacity for better readability
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
@@ -103,7 +96,12 @@ const styles = {
   formGroup: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: '5px',
+  },
+  label: {
+    fontSize: '16px',
+    color: '#333',
   },
   input: {
     padding: '10px',
@@ -125,17 +123,17 @@ const styles = {
   },
   error: {
     color: 'red',
-    marginTop: '10px',
-    fontSize: '14px',
+    marginBottom: '15px',
   },
-  registerLink: {
+  linkText: {
     marginTop: '15px',
     fontSize: '14px',
-    color: '#666',
+    color: '#333',
   },
   link: {
     color: '#ff8c00',
     textDecoration: 'none',
+    fontWeight: 'bold',
   },
 };
 
