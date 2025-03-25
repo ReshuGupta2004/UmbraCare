@@ -13,6 +13,7 @@ import DoctorInfo from './DoctorInfo';
 import Navbar from './Navbar';
 import SplashScreen from './SplashScreen';
 import Chatbot from './Chatbot';
+import AboutUs from './AboutUs';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -42,6 +43,7 @@ const App = () => {
               <Route path="/ivf-tracker" element={isLoggedIn ? <IVFTracker /> : <Navigate to="/" />} />
               <Route path="/notifications" element={isLoggedIn ? <Notifications /> : <Navigate to="/" />} />
               <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/" />} />
+              <Route path="/about" element={isLoggedIn ? <AboutUs /> : <Navigate to="/" />} />
               <Route path="/doctor-info" element={isLoggedIn ? <DoctorInfo /> : <Navigate to="/" />} />
             </Routes>
             {isLoggedIn && <Chatbot />}
@@ -60,7 +62,8 @@ const styles = {
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     position: 'relative',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Increased opacity to make background image less visible
+    // backgroundColor: '#f5e8d9', // Fallback background color from Dashboard.css
+    
   },
 };
 

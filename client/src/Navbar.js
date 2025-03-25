@@ -18,15 +18,17 @@ const Navbar = ({ setIsLoggedIn }) => {
   return (
     <nav style={styles.navbar}>
       <Link to="/dashboard" style={styles.logo}>
-        <img src="/logo192.png" alt="UmbraCare Logo" style={styles.logoImg} /> UmbraCare
+        <img src="/logo192.png" alt="UmbraCare Logo" style={styles.logoImg} />
       </Link>
       <div style={styles.navLinks}>
+        <Link to="/dashboard" style={{ ...styles.navLink, ...(isActive('/dashboard') ? styles.activeLink : {}) }}>Home</Link>
         <Link to="/pregnancy-postpartum-tracker" style={{ ...styles.navLink, ...(isActive('/pregnancy-postpartum-tracker') ? styles.activeLink : {}) }}>Pregnancy & Postpartum Tracker</Link>
         <Link to="/period-tracker" style={{ ...styles.navLink, ...(isActive('/period-tracker') ? styles.activeLink : {}) }}>Period Tracker</Link>
         <Link to="/ivf-tracker" style={{ ...styles.navLink, ...(isActive('/ivf-tracker') ? styles.activeLink : {}) }}>IVF Tracker</Link>
+        <Link to="/doctor-info" style={{ ...styles.navLink, ...(isActive('/doctor-info') ? styles.activeLink : {}) }}>Doctor Info</Link>
         <Link to="/notifications" style={{ ...styles.navLink, ...(isActive('/notifications') ? styles.activeLink : {}) }}>Notifications</Link>
         <Link to="/profile" style={{ ...styles.navLink, ...(isActive('/profile') ? styles.activeLink : {}) }}>Profile</Link>
-        <Link to="/doctor-info" style={{ ...styles.navLink, ...(isActive('/doctor-info') ? styles.activeLink : {}) }}>Doctor Info</Link>
+        <Link to="/about" style={{ ...styles.navLink, ...(isActive('/about') ? styles.activeLink : {}) }}>About Us</Link>
         <button onClick={handleLogout} style={styles.logoutButton}><FaSignOutAlt style={{ marginRight: '5px' }} /> Logout</button>
       </div>
     </nav>
