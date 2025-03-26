@@ -9,7 +9,8 @@ const Dashboard = () => {
     <div style={styles.container}>
       <div style={styles.content}>
         <h1 style={styles.mainHeading}>Welcome to Umbracare</h1>
-        <p style={styles.subHeading}>Your journey to better begins here</p>
+        <p style={styles.subHeading}>PREDICT.PLAN.PROSPER - SMARTER WOMEN'S HEALTH
+        </p>
         
         {/* <div style={styles.measurementBox}>
           <h3 style={styles.measurementHeading}>Add Measurements</h3>

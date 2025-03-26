@@ -37,13 +37,65 @@ const Navbar = ({ setIsLoggedIn }) => {
 };
 
 const styles = {
-  navbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px', backgroundColor: '#ff8c00', color: '#fff', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', position: 'fixed', top: 0, width: '100%', zIndex: 1000, boxSizing: 'border-box' },
-  logo: { fontSize: '24px', fontWeight: 'bold', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center' },
-  logoImg: { width: '30px', height: '30px', marginRight: '10px' }, // Adjusted size for the logo
-  navLinks: { display: 'flex', alignItems: 'center', gap: '20px' },
-  navLink: { color: '#fff', textDecoration: 'none', fontSize: '16px', transition: 'color 0.3s, background-color 0.3s', padding: '5px 10px', borderRadius: '5px' },
-  activeLink: { backgroundColor: '#fff', color: '#ff8c00' },
-  logoutButton: { display: 'flex', alignItems: 'center', backgroundColor: '#fff', color: '#ff8c00', padding: '8px 15px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s' },
+  navbar: { 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: '10px 30px', 
+    backgroundColor: '#ff8c00', 
+    color: '#fff', 
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', 
+    position: 'fixed', 
+    top: 0, 
+    width: '100%', 
+    zIndex: 1000, 
+    boxSizing: 'border-box',
+    height: '90px',
+  },
+  logo: { 
+    fontSize: '24px', 
+    fontWeight: 'bold', 
+    color: '#fff', 
+    textDecoration: 'none', 
+    display: 'flex', 
+    alignItems: 'center' 
+  },
+  logoImg: { 
+    width: '70px',
+    height: '70px',
+    marginRight: '25px',
+    boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)', // Kept the shadow for highlighting
+    // Removed borderRadius: '50%' to keep the logo square
+  },
+  navLinks: { 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '20px' 
+  },
+  navLink: { 
+    color: '#fff', 
+    textDecoration: 'none', 
+    fontSize: '16px', 
+    transition: 'color 0.3s, background-color 0.3s', 
+    padding: '5px 10px', 
+    borderRadius: '5px' 
+  },
+  activeLink: { 
+    backgroundColor: '#fff', 
+    color: '#ff8c00' 
+  },
+  logoutButton: { 
+    display: 'flex', 
+    alignItems: 'center', 
+    backgroundColor: '#fff', 
+    color: '#ff8c00', 
+    padding: '8px 15px', 
+    border: 'none', 
+    borderRadius: '5px', 
+    cursor: 'pointer', 
+    fontSize: '16px', 
+    transition: 'background-color 0.3s' 
+  },
 };
 
 export default Navbar;
