@@ -1,11 +1,9 @@
-// client/src/SplashScreen.js
 import React from 'react';
 
 const SplashScreen = () => {
   return (
     <div style={styles.container}>
-      <img src="/logo192.png" alt="UmbraCare Logo" style={styles.logo} /> {/* Updated path */}
-      <h1 style={styles.title}>UmbraCare</h1>
+      <img src="/logo192.png" alt="UmbraCare Logo" style={styles.logo} />
       <div style={styles.loader}></div>
     </div>
   );
@@ -21,15 +19,11 @@ const styles = {
     backgroundColor: '#ff8c00',
   },
   logo: {
-    width: '150px',
-    height: '150px',
+    width: '200px', // Increased from 150px to 200px
+    height: '200px', // Increased from 150px to 200px
     marginBottom: '20px',
-  },
-  title: {
-    fontSize: '36px',
-    color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: "'Poppins', sans-serif",
+    boxShadow: '0 0 20px rgba(255, 255, 255, 0.8)', // Glow effect for highlighting
+    // Removed borderRadius: '50%' to keep it square
   },
   loader: {
     marginTop: '20px',

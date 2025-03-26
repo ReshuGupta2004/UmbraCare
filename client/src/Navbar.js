@@ -1,4 +1,3 @@
-// client/src/Navbar.js
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
@@ -13,7 +12,18 @@ const Navbar = ({ setIsLoggedIn }) => {
     navigate('/');
   };
 
-  const isActive = (path) => location.pathname === path;
+  // Modified isActive to include /newsletter/fertility-treatments, /newsletter/nutrition-tips, and /newsletter/menstrual-cycle
+  const isActive = (path) => {
+    if (path === '/newsletter') {
+      return (
+        location.pathname === '/newsletter' ||
+        location.pathname === '/newsletter/fertility-treatments' ||
+        location.pathname === '/newsletter/nutrition-tips' ||
+        location.pathname === '/newsletter/menstrual-cycle'
+      );
+    }
+    return location.pathname === path;
+  };
 
   return (
     <nav style={styles.navbar}>
@@ -64,8 +74,7 @@ const styles = {
     width: '70px',
     height: '70px',
     marginRight: '25px',
-    boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)', // Kept the shadow for highlighting
-    // Removed borderRadius: '50%' to keep the logo square
+    boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)',
   },
   navLinks: { 
     display: 'flex', 

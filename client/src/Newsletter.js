@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaEnvelope, FaPaperPlane } from 'react-icons/fa';
 
 const Newsletter = () => {
@@ -10,7 +11,6 @@ const Newsletter = () => {
     if (email && email.includes('@')) {
       setIsSubscribed(true);
       setEmail('');
-      // In a real app, you would send this to your backend
       console.log('Subscribed with email:', email);
     } else {
       alert('Please enter a valid email address');
@@ -31,7 +31,9 @@ const Newsletter = () => {
               Researchers at Stanford University have developed a new method for embryo selection that uses artificial intelligence 
               to identify the most viable embryos for implantation.
             </p>
-            <button style={styles.readMoreButton}>Read More</button>
+            <Link to="/newsletter/fertility-treatments">
+              <button style={styles.readMoreButton}>Read More</button>
+            </Link>
           </div>
           
           <div style={styles.article}>
@@ -42,7 +44,9 @@ const Newsletter = () => {
               Experts recommend increasing intake of folate, iron, and omega-3 fatty acids. 
               This article explores easy meal plans and recipes to ensure you're getting all the nutrients you need.
             </p>
-            <button style={styles.readMoreButton}>Read More</button>
+            <Link to="/newsletter/nutrition-tips">
+              <button style={styles.readMoreButton}>Read More</button>
+            </Link>
           </div>
           
           <div style={styles.article}>
@@ -53,7 +57,9 @@ const Newsletter = () => {
               This comprehensive guide explains the four phases of the menstrual cycle, 
               how to identify your fertile window, and what changes in your cycle might indicate.
             </p>
-            <button style={styles.readMoreButton}>Read More</button>
+            <Link to="/newsletter/menstrual-cycle">
+              <button style={styles.readMoreButton}>Read More</button>
+            </Link>
           </div>
         </div>
         
@@ -102,15 +108,11 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     padding: '20px',
-    position: 'relative',
-    // top: '30px',
-    height: '100%',
+    paddingTop: '90px',
   },
   content: {
     width: '100%',
     maxWidth: '1200px',
-    height: '80vh',
-    overflowY: 'scroll',
     padding: '30px',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '10px',

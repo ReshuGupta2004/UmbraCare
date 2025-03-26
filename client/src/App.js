@@ -1,4 +1,3 @@
-// client/src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
@@ -15,6 +14,9 @@ import SplashScreen from './SplashScreen';
 import Chatbot from './Chatbot';
 import AboutUs from './AboutUs';
 import Newsletter from './Newsletter';
+import FertilityTreatments from './FertilityTreatments';
+import NutritionTips from './NutritionTips';
+import MenstrualCycle from './MenstrualCycle'; // Add this import
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -47,6 +49,9 @@ const App = () => {
               <Route path="/about" element={isLoggedIn ? <AboutUs /> : <Navigate to="/" />} />
               <Route path="/doctor-info" element={isLoggedIn ? <DoctorInfo /> : <Navigate to="/" />} />
               <Route path="/newsletter" element={isLoggedIn ? <Newsletter /> : <Navigate to="/" />} />
+              <Route path="/newsletter/fertility-treatments" element={isLoggedIn ? <FertilityTreatments /> : <Navigate to="/" />} />
+              <Route path="/newsletter/nutrition-tips" element={isLoggedIn ? <NutritionTips /> : <Navigate to="/" />} />
+              <Route path="/newsletter/menstrual-cycle" element={isLoggedIn ? <MenstrualCycle /> : <Navigate to="/" />} /> {/* Add this route */}
             </Routes>
             {isLoggedIn && <Chatbot />}
           </>
@@ -64,8 +69,6 @@ const styles = {
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     position: 'relative',
-    // backgroundColor: '#f5e8d9', // Fallback background color from Dashboard.css
-    
   },
 };
 
