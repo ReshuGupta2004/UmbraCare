@@ -1,5 +1,5 @@
 // client/src/PregnancyPostpartumTracker.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
@@ -13,9 +13,24 @@ const PregnancyPostpartumTracker = () => {
   const [menopauseSymptoms, setMenopauseSymptoms] = useState('');
   const [medication, setMedication] = useState('');
   const [appointment, setAppointment] = useState('');
-  const [showAppointmentCalendar, setShowAppointmentCalendar] = useState(false); // State for appointment calendar
+  const [showAppointmentCalendar, setShowAppointmentCalendar] = useState(false); 
   const [result, setResult] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [healthData, setHealthData] = useState({
+    Age: "",
+    SystolicBP: "",
+    DiastolicBP: "",
+    BS: "",
+    BodyTemp: "",
+    HeartRate: "",
+    Week: ""
+  });
+
+  useEffect(() => {
+    const subscriptionStatus = localStorage.getItem('isSubscribed');
+    setIsSubscribed(subscriptionStatus === 'true');
+  }, []);
 
   const handlePregnancySubmit = (e) => {
     e.preventDefault();
@@ -72,15 +87,45 @@ const PregnancyPostpartumTracker = () => {
     }
   };
 
+  const handleHealthDataChange = (e) => {
+    const { name, value } = e.target;
+    setHealthData({
+      ...healthData,
+      [name]: parseFloat(value) || 0
+    });
+  };
+
+const handleHealthDataSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found. Please log in again.");
+
+    const response = await axios.post(
+      "https://preg-modal.onrender.com/predict",
+      healthData,
+      { headers: { "Content-Type": "application/json", "x-auth-token": token } }
+    );
+
+    setResult(`Risk Level: ${response.data.risk}`);
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 3000);
+  } catch (err) {
+    console.error("Error predicting health data:", err.response?.data || err.message);
+    setResult(`Error: ${err.response?.data?.detail || err.message}`);
+  }
+};
+
+
   const getFetalDevelopmentInsights = (week) => {
     if (week >= 1 && week <= 4) return 'Your baby is a tiny embryo, forming the neural tube and heart.';
-    if (week >= 5 && week <= 8) return 'Your baby’s major organs are forming, and the heart begins to beat.';
+    if (week >= 5 && week <= 8) return 'Your babys major organs are forming, and the heart begins to beat.';
     if (week >= 9 && week <= 12) return 'Your baby is now a fetus, with facial features and limbs developing.';
     if (week >= 13 && week <= 16) return 'Your baby can make facial expressions and may start sucking their thumb.';
-    if (week >= 17 && week <= 20) return 'You might feel your baby’s first movements, and they can hear sounds.';
-    if (week >= 21 && week <= 24) return 'Your baby’s lungs are developing, and they’re practicing breathing movements.';
-    if (week >= 25 && week <= 28) return 'Your baby’s eyes can open, and they’re gaining more fat.';
-    if (week >= 29 && week <= 32) return 'Your baby’s brain is growing rapidly, and they’re getting ready for birth.';
+    if (week >= 17 && week <= 20) return 'You might feel your babys first movements, and they can hear sounds.';
+    if (week >= 21 && week <= 24) return 'Your babys lungs are developing, and they are practicing breathing movements.';
+    if (week >= 25 && week <= 28) return 'Your babys eyes can open, and they are gaining more fat.';
+    if (week >= 29 && week <= 32) return 'Your babys brain is growing rapidly, and they are getting ready for birth.';
     if (week >= 33 && week <= 36) return 'Your baby is gaining weight and preparing for delivery.';
     if (week >= 37 && week <= 40) return 'Your baby is full-term and ready to meet you!';
     return 'Please enter a valid week (1-40).';
@@ -93,6 +138,8 @@ const PregnancyPostpartumTracker = () => {
     return 'Consult a doctor for personalized advice on managing your symptoms.';
   };
 
+  
+
   return (
     <div style={styles.container}>
       <div style={styles.trackerContainer}>
@@ -102,6 +149,9 @@ const PregnancyPostpartumTracker = () => {
           <button onClick={() => setMode('postpartum')} style={{ ...styles.toggleButton, backgroundColor: mode === 'postpartum' ? '#ff8c00' : '#ccc' }}>Postpartum</button>
           <button onClick={() => setMode('medication')} style={{ ...styles.toggleButton, backgroundColor: mode === 'medication' ? '#ff8c00' : '#ccc' }}>Medication Reminder</button>
           <button onClick={() => setMode('menopause')} style={{ ...styles.toggleButton, backgroundColor: mode === 'menopause' ? '#ff8c00' : '#ccc' }}>Menopause Insights</button>
+          {isSubscribed && (
+            <button onClick={() => setMode('health-data')} style={{ ...styles.toggleButton, backgroundColor: mode === 'health-data' ? '#ff8c00' : '#ccc' }}>Health Data</button>
+          )}
         </div>
 
         {mode === 'pregnancy' && (
@@ -182,6 +232,40 @@ const PregnancyPostpartumTracker = () => {
               <textarea value={menopauseSymptoms} onChange={(e) => setMenopauseSymptoms(e.target.value)} style={styles.textarea} placeholder="Enter your symptoms here..." required />
             </div>
             <button type="submit" style={styles.button}>Get Guidance</button>
+          </form>
+        )}
+
+        {mode === 'health-data' && isSubscribed && (
+          <form onSubmit={handleHealthDataSubmit} style={styles.form}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Age:</label>
+              <input type="number" name="Age" value={healthData.Age} onChange={handleHealthDataChange} style={styles.input} min="0" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Systolic BP:</label>
+              <input type="number" name="SystolicBP" value={healthData.SystolicBP} onChange={handleHealthDataChange} style={styles.input} min="0" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Diastolic BP:</label>
+              <input type="number" name="DiastolicBP" value={healthData.DiastolicBP} onChange={handleHealthDataChange} style={styles.input} min="0" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Blood Sugar:</label>
+              <input type="number" name="BS" value={healthData.BS} onChange={handleHealthDataChange} style={styles.input} min="0" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Body Temperature:</label>
+              <input type="number" name="BodyTemp" value={healthData.BodyTemp} onChange={handleHealthDataChange} style={styles.input} min="0" step="0.1" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Heart Rate:</label>
+              <input type="number" name="HeartRate" value={healthData.HeartRate} onChange={handleHealthDataChange} style={styles.input} min="0" />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Pregnancy Week:</label>
+              <input type="number" name="Week" value={healthData.Week} onChange={handleHealthDataChange} style={styles.input} min="0" max="40" />
+            </div>
+            <button type="submit" style={styles.button}>Submit Health Data</button>
           </form>
         )}
 

@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Notification = require('../models/Notification');
+const User = require('../models/user');
+const nodemailer = require('nodemailer');
 
 // Add a new notification
 router.post('/', auth, async (req, res) => {
@@ -14,9 +16,33 @@ router.post('/', auth, async (req, res) => {
       message,
     });
     await notification.save();
+    
+    // Get user email from the user object
+    // const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    
+    // Send email notification
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'riyanshigupta2004@gmail.com',
+        pass: 'scru hzfa qgmd eqbz'
+      }
+    });
+    
+    const mailOptions = {
+      from: "riyanshigupta2004@gmail.com",
+      to: user.email,
+      subject: `New Notification: ${type}`,
+      text: message
+    };
+    
+    await transporter.sendMail(mailOptions);
+    
     res.json(notification);
   } catch (err) {
-    console.error('Error saving notification:', err);
+    console.error('Error saving notification or sending email:', err);
     res.status(500).send('Server error');
   }
 });
