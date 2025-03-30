@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Login from './Login';
 import Register from './Register';
 import Dashboard from './Dashboard';
@@ -33,6 +34,7 @@ const App = () => {
   return (
     <Router>
       <div style={styles.appContainer}>
+        <Toaster position="top-right" />
         {showSplash ? (
           <SplashScreen />
         ) : (

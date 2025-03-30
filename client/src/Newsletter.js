@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEnvelope, FaPaperPlane, FaTimes, FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { MdDeleteSweep } from "react-icons/md";
+import axios from 'axios';
+import { Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 const NEWS_API_KEY = "49d8202a37b24a62b7fd9d6fa7f6aac2"; 
 
@@ -29,6 +33,7 @@ const Newsletter = () => {
         
         // Transform the data to match our component's format
         const formattedArticles = data.map(newsletter => ({
+          _id: newsletter._id, // Ensure we capture the ID for deletion
           title: newsletter.title,
           date: `Published: ${new Date(newsletter.publishedAt).toLocaleDateString()}`,
           summary: newsletter.description,
@@ -104,21 +109,25 @@ const Newsletter = () => {
     }
   };
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    fetch('http://localhost:5000/api/newsData/subscribe', { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: localStorage.getItem('userEmail') })
-    })
-    .then(response => response.json())
-    .then(res => {
-      if (res.success) {
-        localStorage.setItem('isSubscribed', 'true');
-        window.location.reload();
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to subscribe');
+        return;
       }
-    })
-    .catch(error => console.error('Subscription error:', error));
+
+      await axios.post('http://localhost:5000/api/newsletter/subscribe', {}, {
+        headers: { 'x-auth-token': token }
+      });
+
+      localStorage.setItem('isSubscribed', 'true');
+      toast.success('Successfully subscribed to newsletter!');
+    } catch (err) {
+      console.error('Error subscribing to newsletter:', err);
+      toast.error(err.response?.data?.msg || 'Error subscribing to newsletter');
+    }
   };
 
   const closeModal = () => {
@@ -160,10 +169,13 @@ const Newsletter = () => {
   
   const handleAddNewsletter = async (e) => {
     e.preventDefault();
+    // setIsLoading(true);
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         alert("You must be logged in to add a newsletter");
+        setIsLoading(false);
         return;
       }
 
@@ -183,7 +195,6 @@ const Newsletter = () => {
         setShowAddForm(false);
         setNewNewsletter({ title: "", description: "" });
         
-        // Refresh the newsletters list
         const updatedArticles = [...articles, {
           title: newNewsletter.title,
           date: `Published: ${new Date().toLocaleDateString()}`,
@@ -192,12 +203,35 @@ const Newsletter = () => {
           loading: false,
         }];
         setArticles(updatedArticles);
+        setIsLoading(false);
       } else {
         alert(data.error || "Failed to create newsletter");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error creating newsletter:", error);
       alert("An error occurred. Please try again later.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteNewsletter = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to delete newsletters');
+        return;
+      }
+
+      await axios.delete(`http://localhost:5000/api/newsletter/newsletter/${id}`, {
+        headers: { 'x-auth-token': token }
+      });
+
+      setArticles(articles.filter(article => article._id !== id));
+      toast.success('Newsletter deleted successfully');
+    } catch (err) {
+      console.error('Error deleting newsletter:', err);
+      toast.error(err.response?.data?.msg || 'Error deleting newsletter');
     }
   };
 
@@ -206,12 +240,14 @@ const Newsletter = () => {
       <div style={styles.content}>
         <div style={styles.headerContainer}>
           <h1 style={styles.mainHeading}>Fertility Health Newsletter</h1>
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)} 
-            style={styles.addButton}
-          >
-            <FaPlus style={styles.addIcon} /> Add Newsletter
-          </button>
+          {(localStorage.getItem('userEmail') === 'reshu@exa.com' || localStorage.getItem('userEmail') === 'riyanshigupta2004@gmail.com') && (
+            <button 
+              onClick={() => setShowAddForm(!showAddForm)} 
+              style={styles.addButton}
+            >
+              <FaPlus style={styles.addIcon} /> Add Newsletter
+            </button>
+          )}
         </div>
 
         {showAddForm && (
@@ -234,9 +270,17 @@ const Newsletter = () => {
                 required
               />
               <div style={styles.formButtons}>
-                <button type="submit" style={styles.submitButton}>
-                  Create Newsletter
-                </button>
+                {isLoading ? (
+                  <button type="button" style={styles.submitButton} disabled>
+                    Creating...
+                  </button>
+                ) : (
+                  <>
+                    <button type="submit" style={styles.submitButton}>
+                    Create Newsletter
+                  </button>
+                  </>
+                )}
                 <button 
                   type="button" 
                   onClick={() => setShowAddForm(false)} 
@@ -245,14 +289,27 @@ const Newsletter = () => {
                   Cancel
                 </button>
               </div>
+
             </form>
+
           </div>
         )}
 
         <div style={styles.articlesContainer}>
           {articles.map((article, index) => (
             <div key={index} style={styles.article}>
-              <h2 style={styles.articleTitle}>{article.title}</h2>
+              <div style={styles.articleHeader}>
+                <h2 style={styles.articleTitle}>{article.title}</h2>
+                {(localStorage.getItem('userEmail') === 'reshu@exa.com' || localStorage.getItem('userEmail') === 'riyanshigupta2004@gmail.com') && (
+                  <button
+                    onClick={() => handleDeleteNewsletter(article._id)}
+                    style={styles.deleteButton}
+                    aria-label="Delete newsletter"
+                  >
+                    <MdDeleteSweep />
+                  </button>
+                )}
+              </div>
               <p style={styles.articleDate}>{article.date}</p>
               <p style={styles.articleContent}>{article.summary}</p>
               <button
@@ -332,6 +389,15 @@ const Newsletter = () => {
           </div>
         )}
       </div>
+      <Toaster 
+  position="top-right"
+  reverseOrder={false}
+  toastOptions={{
+    style: {
+      zIndex: 9999,
+    },
+  }}
+/>
     </div>
   );
 }
@@ -441,10 +507,24 @@ const styles = {
     cursor: 'pointer',
     border: '1px solid #eee',
   },
+  articleHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '10px',
+  },
   articleTitle: {
     fontSize: '20px',
     color: '#333',
     marginBottom: '10px',
+  },
+  deleteButton: {
+    backgroundColor: 'transparent',
+    color: '#ff5252',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    padding: '5px',
   },
   articleDate: {
     fontSize: '14px',

@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
+// import "react-hot-toast/dist/react-hot-toast.css";
 
 const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
@@ -22,9 +25,68 @@ const Login = ({ setIsLoggedIn }) => {
       localStorage.setItem('isSubscribed', res.data.user.isSubscribed);
       console.log(res.data.user.name);
       setIsLoggedIn(true);
+      toast.custom((t) => (
+        <div
+          style={{
+            animation: t.visible ? 'fadeIn 0.5s ease-out' : 'fadeOut 0.5s ease-in',
+            maxWidth: '400px',
+            width: '100%',
+            backgroundColor: 'white',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            borderRadius: '8px',
+            pointerEvents: 'auto',
+            display: 'flex',
+            border: '1px solid rgba(0, 0, 0, 0.05)'
+          }}
+        >
+          <div style={{ flex: '1 1 0%', width: '0', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div style={{ flexShrink: '0', paddingTop: '2px' }}>
+                <img
+                  style={{ height: '40px', width: '40px', borderRadius: '50%' }}
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                  alt="User avatar"
+                />
+              </div>
+              <div style={{ marginLeft: '12px', flex: '1 1 0%' }}>
+                <p style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+                  Welcome back!
+                </p>
+                <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>
+                  {`Hello, ${res.data.user.name}. You've successfully logged in.`}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', borderLeft: '1px solid #e5e7eb' }}>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              style={{
+                width: '100%',
+                border: 'none',
+                borderRadius: '0 8px 8px 0',
+                padding: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#ff8c00',
+                cursor: 'pointer',
+                background: 'transparent'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fff8f0'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ), { duration: 4000 })
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.msg || 'Login failed');
+      toast.error('Login failed');
     }
   };
 
@@ -61,6 +123,15 @@ const Login = ({ setIsLoggedIn }) => {
           Don't have an account? <Link to="/register" style={styles.link}>Register</Link>
         </p>
       </div>
+      <Toaster 
+  position="top-right"
+  reverseOrder={false}
+  toastOptions={{
+    style: {
+      zIndex: 9999,
+    },
+  }}
+/>
     </div>
   );
 };

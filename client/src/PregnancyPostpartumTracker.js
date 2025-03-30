@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
+import { Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { FaCalendarAlt } from 'react-icons/fa';
 
 const PregnancyPostpartumTracker = () => {
@@ -80,10 +82,12 @@ const PregnancyPostpartumTracker = () => {
       );
       setResult(`Medication Reminder: ${medication}\nNext Appointment: ${appointment}`);
       setShowPopup(true);
+      toast.success('Reminder added successfully!');
       setTimeout(() => setShowPopup(false), 3000);
     } catch (err) {
       console.error('Error saving data:', err.response?.data || err.message);
       setResult(`Error saving data: ${err.response?.data?.msg || err.message}`);
+      toast.error('Error saving data!');
     }
   };
 
@@ -276,6 +280,14 @@ const handleHealthDataSubmit = async (e) => {
           </div>
         )}
       </div>
+      <Toaster 
+  position="top-right"
+  reverseOrder={false}
+  toastOptions={{
+    style: {
+      zIndex: 9999,
+    },
+  }} />
     </div>
   );
 };

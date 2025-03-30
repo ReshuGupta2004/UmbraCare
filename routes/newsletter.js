@@ -15,15 +15,15 @@ const newsData = require('../models/newsData');
 router.post('/addnewsletter', auth, async (req, res) => {
   const { title, description } = req.body;
   try {
-    // Create and save the newsletter
+   
     const newsletter = new Newsletter({ title, description });
     await newsletter.save();
     
-    // Fetch all subscribers
+ 
     const subscribers = await newsData.find();
     
     if (subscribers.length > 0) {
-      // Fetch top 3 articles related to the title
+       
       const NEWS_API_KEY = "49d8202a37b24a62b7fd9d6fa7f6aac2";
       const query = encodeURIComponent(title);
       
@@ -95,5 +95,19 @@ router.get('/newsletter', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch newsletters' });
   }
 });
+
+router.delete('/newsletter/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Newsletter.findByIdAndDelete(id);
+    res.json({ message: 'Newsletter deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting newsletter:', err);
+    res.status(500).json({ error: 'Failed to delete newsletter' });
+  }
+});
+
+
+
 
 module.exports = router;

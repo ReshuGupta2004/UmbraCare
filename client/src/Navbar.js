@@ -8,6 +8,11 @@ const Navbar = ({ setIsLoggedIn }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('email');
+    localStorage.removeItem('isSubscribed');
+    localStorage.removeItem('fertilityNews');
     setIsLoggedIn(false);
     navigate('/');
   };
