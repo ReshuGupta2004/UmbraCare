@@ -18,7 +18,7 @@ const Login = ({ setIsLoggedIn }) => {
       const res = await axios.post('http://localhost:5000/api/users/login', { email, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('name', JSON.stringify(res.data.user.name));
-      // localStorage.setItem('userId', res.data.user.id);
+      localStorage.setItem('userId', res.data.user.id);
       localStorage.setItem('userEmail', res.data.user.email);
       // localStorage.setItem('medicalHistory', res.data.user.medicalHistory || '');
       // localStorage.setItem('menstrualHistory', res.data.user.menstrualHistory || '');
