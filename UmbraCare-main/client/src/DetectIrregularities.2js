@@ -1,0 +1,172 @@
+import React, { useState } from 'react';
+import SymptomSelector from './SymptomSelector';
+
+const DetectIrregularities = () => {
+  const [results, setResults] = useState(null);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    cycleLength: '',
+    ovulationDay: '',
+    selectedSymptoms: []
+  });
+
+  const handleCheck = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      // Validate inputs
+      if (parseInt(formData.ovulationDay) > parseInt(formData.cycleLength)) {
+        throw new Error('Ovulation day cannot exceed cycle length');
+      }
+
+      const response = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cycle_length: formData.cycleLength,
+          ovulation_day: formData.ovulationDay,
+          symptoms: formData.selectedSymptoms
+        })
+      });
+
+      if (!response.ok) throw new Error('Prediction failed');
+      
+      const data = await response.json();
+      setResults({
+        prediction: data.prediction,
+        confidence: data.confidence,
+        irregularities: data.irregularities
+      });
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setResults(null);
+    setFormData({ cycleLength: '', ovulationDay: '', selectedSymptoms: [] });
+  };
+
+  return (
+    <div style={styles.container}>
+      {results ? (
+        <div style={styles.results}>
+          <h3>Analysis Results</h3>
+          <p>Prediction: {results.prediction}</p>
+          <p>Confidence: {results.confidence}%</p>
+          <div>
+            {results.irregularities.map((item, index) => (
+              <div key={index}>{item}</div>
+            ))}
+          </div>
+          <button onClick={resetForm}>New Analysis</button>
+        </div>
+      ) : (
+        <SymptomSelector
+          onCheck={handleCheck}
+          isLoading={isLoading}
+          error={error}
+          {...formData}
+          setCycleLength={(v) => setFormData(prev => ({...prev, cycleLength: v}))}
+          setOvulationDay={(v) => setFormData(prev => ({...prev, ovulationDay: v}))}
+          setSelectedSymptoms={(v) => setFormData(prev => ({...prev, selectedSymptoms: v}))}
+        />
+      )}
+    </div>
+  );
+};
+
+
+const styles = {
+    container: {
+      maxWidth: '600px',
+      margin: '0 auto',
+      padding: '20px',
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    },
+    loading: {
+      textAlign: 'center',
+      padding: '20px',
+      color: '#ff8c00',
+      backgroundColor: '#fff9e6',
+      borderRadius: '8px',
+      marginBottom: '20px'
+    },
+    resultsContainer: {
+      backgroundColor: '#f9f9f9',
+      padding: '20px',
+      borderRadius: '8px',
+      border: '1px solid #eee',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    },
+    resultHeading: {
+      color: '#e91e63',
+      textAlign: 'center',
+      marginBottom: '20px',
+    },
+    alertWarning: {
+      backgroundColor: '#fff3cd',
+      padding: '15px',
+      borderRadius: '5px',
+      marginBottom: '20px',
+      color: '#856404',
+      borderLeft: '4px solid #ffc107'
+    },
+    alertSuccess: {
+      backgroundColor: '#d4edda',
+      padding: '15px',
+      borderRadius: '5px',
+      marginBottom: '20px',
+      color: '#155724',
+      borderLeft: '4px solid #28a745'
+    },
+    error: {
+      color: '#d32f2f',
+      backgroundColor: '#fde7e7',
+      padding: '15px',
+      borderRadius: '5px',
+      marginBottom: '20px',
+      textAlign: 'center',
+      borderLeft: '4px solid #f44336'
+    },
+    reasonsList: {
+      marginLeft: '20px',
+      paddingLeft: '0',
+      lineHeight: '1.6'
+    },
+    inputHeading: {
+      marginTop: '20px',
+      marginBottom: '10px',
+      color: '#333',
+      fontSize: '18px'
+    },
+    inputList: {
+      marginLeft: '20px',
+      paddingLeft: '0',
+      listStyleType: 'none',
+      lineHeight: '1.8'
+    },
+    backButton: {
+      padding: '12px 15px',
+      backgroundColor: '#e91e63',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      marginTop: '20px',
+      width: '100%',
+      fontSize: '16px',
+      transition: 'all 0.3s ease'
+    },
+    disabledButton: {
+      opacity: 0.7,
+      cursor: 'not-allowed'
+    }
+};
+
+  export default DetectIrregularities;
