@@ -34,49 +34,91 @@ const PregnancyPostpartumTracker = () => {
   //   const fetalInsights = getFetalDevelopmentInsights(parseInt(week));
   //   setResult(`Week ${week}: ${fetalInsights}`);
   // };
+  // const handlePregnancySubmit = async (e) => {
+  //   e.preventDefault();
+  
+  //   if (!week) {
+  //     setResult('Please enter the current week of pregnancy.');
+  //     return;
+  //   }
+  
+  //   // Optionally show fetal development
+  //   const fetalInsights = getFetalDevelopmentInsights(parseInt(week));
+  //   setResult(`Week ${week}: ${fetalInsights}`);
+  
+  //   // 👇 Send POST request to your FastAPI model
+  //   try {
+  //     const response = await fetch("http://localhost:8002/predict", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json"
+  //       },
+  //       body: JSON.stringify({
+  //         Age: parseFloat(age),
+  //         SystolicBP: parseFloat(systolicBP),
+  //         DiastolicBP: parseFloat(diastolicBP),
+  //         BS: parseFloat(bloodSugar),
+  //         BodyTemp: parseFloat(bodyTemp),
+  //         HeartRate: parseFloat(heartRate),
+  //         Week: parseInt(week) // optional, not used in model
+  //       })
+  //     });
+  
+  //     const data = await response.json();
+  
+  //     if (data.risk) {
+  //       setResult(prev => `${prev}\nPredicted Risk Level: ${data.risk}`);
+  //     } else {
+  //       setResult("Prediction failed. Please try again.");
+  //     }
+  
+  //   } catch (error) {
+  //     console.error("Error calling API:", error);
+  //     setResult("Error: Could not connect to the prediction service.");
+  //   }
+  // };
   const handlePregnancySubmit = async (e) => {
     e.preventDefault();
   
     if (!week) {
-      setResult('Please enter the current week of pregnancy.');
+      setResult("Please enter the current week of pregnancy.");
       return;
     }
   
-    // Optionally show fetal development
     const fetalInsights = getFetalDevelopmentInsights(parseInt(week));
     setResult(`Week ${week}: ${fetalInsights}`);
   
-    // 👇 Send POST request to your FastAPI model
     try {
-      const response = await fetch("http://localhost:8002/predict", {
+      const response = await fetch("https://pregnancy-model-api.onrender.com/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          Age: parseFloat(age),
-          SystolicBP: parseFloat(systolicBP),
-          DiastolicBP: parseFloat(diastolicBP),
-          BS: parseFloat(bloodSugar),
-          BodyTemp: parseFloat(bodyTemp),
-          HeartRate: parseFloat(heartRate),
-          Week: parseInt(week) // optional, not used in model
+          age: parseFloat(age),
+          systolic_bp: parseFloat(systolicBP),
+          diastolic_bp: parseFloat(diastolicBP),
+          blood_glucose: parseFloat(bloodSugar) / 10,
+          body_temp: parseFloat(bodyTemp),
+          heart_rate: parseFloat(heartRate),
+          week: parseInt(week)
         })
       });
   
       const data = await response.json();
+      console.log("Full API Response:", data);
   
-      if (data.risk) {
+      if (data && data.risk !== undefined) {
         setResult(prev => `${prev}\nPredicted Risk Level: ${data.risk}`);
       } else {
-        setResult("Prediction failed. Please try again.");
+        setResult(`Prediction failed. API response: ${JSON.stringify(data)}`);
       }
-  
     } catch (error) {
       console.error("Error calling API:", error);
       setResult("Error: Could not connect to the prediction service.");
     }
   };
+  
   
 
   const handlePostpartumSubmit = (e) => {
