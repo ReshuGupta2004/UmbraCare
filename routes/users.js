@@ -41,10 +41,23 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const payload = { user: { id: user.id } };
-jwt.sign(payload, 'your_jwt_secret', { expiresIn: '1h' }, (err, token) => {
-  if (err) throw err;
-  res.json({ token });
-});
+    jwt.sign(payload, 'your_jwt_secret', { expiresIn: '1h' }, (err, token) => {
+      if (err) throw err;
+      // Send full user details along with the token
+      const userResponse = {
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          medicalHistory: user.medicalHistory,
+          menstrualHistory: user.menstrualHistory,
+          createdAt: user.createdAt,
+          isSubscribed: user.isSubscribed,
+        }
+      };
+      res.json(userResponse);
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).send('Server error');

@@ -23,6 +23,9 @@ mongoose.connect('mongodb+srv://riyanshigupta2004:Qf7ZzNW6OeXjyYGD@cluster0.sx8m
 // Routes
 app.use('/api/users', require('./routes/users')); // This should include /me
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/newsletter', require('./routes/newsletter'));
+app.use('/api/newsData', require('./routes/newsData'));
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,5 +1,5 @@
 // models/User.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,15 +15,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   medicalHistory: {
     type: String,
-    default: '',
+    default: "",
   },
   menstrualHistory: {
     type: String,
-    default: '',
+    default: "",
+  },
+  isSubscribed: {
+    type: Boolean,
+    default: false,
   },
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

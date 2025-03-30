@@ -17,6 +17,7 @@ import Newsletter from './Newsletter';
 import FertilityTreatments from './FertilityTreatments';
 import NutritionTips from './NutritionTips';
 import MenstrualCycle from './MenstrualCycle'; // Add this import
+// import FertilityTreatments from './FertilityTreatments';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -49,7 +50,8 @@ const App = () => {
               <Route path="/about" element={isLoggedIn ? <AboutUs /> : <Navigate to="/" />} />
               <Route path="/doctor-info" element={isLoggedIn ? <DoctorInfo /> : <Navigate to="/" />} />
               <Route path="/newsletter" element={isLoggedIn ? <Newsletter /> : <Navigate to="/" />} />
-              <Route path="/newsletter/fertility-treatments" element={isLoggedIn ? <FertilityTreatments /> : <Navigate to="/" />} />
+
+              <Route path="/fertility-treatments" element={isLoggedIn ? <FertilityTreatments /> : <Navigate to="/" />} />
               <Route path="/newsletter/nutrition-tips" element={isLoggedIn ? <NutritionTips /> : <Navigate to="/" />} />
               <Route path="/newsletter/menstrual-cycle" element={isLoggedIn ? <MenstrualCycle /> : <Navigate to="/" />} /> {/* Add this route */}
             </Routes>

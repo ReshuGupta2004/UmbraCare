@@ -1,104 +1,340 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaEnvelope, FaPaperPlane } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaEnvelope, FaPaperPlane, FaTimes, FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+const NEWS_API_KEY = "49d8202a37b24a62b7fd9d6fa7f6aac2"; 
 
 const Newsletter = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newNewsletter, setNewNewsletter] = useState({ title: "", description: "" });
+
+  
+  React.useEffect(() => {
+    const fetchNewsletters = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/newsletter/newsletter');
+        if (!response.ok) {
+          throw new Error('Failed to fetch newsletters');
+        }
+        
+        const data = await response.json();
+        
+        // Transform the data to match our component's format
+        const formattedArticles = data.map(newsletter => ({
+          title: newsletter.title,
+          date: `Published: ${new Date(newsletter.publishedAt).toLocaleDateString()}`,
+          summary: newsletter.description,
+          fullContent: "",
+          loading: false,
+        }));
+        
+        setArticles(formattedArticles);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching newsletters:', err);
+        setError('Failed to load newsletters. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchNewsletters();
+  }, []);
+  const navigate = useNavigate();
+
+  const fetchFertilityNews = async (index) => {
+    setArticles((prevArticles) =>
+      prevArticles.map((article, i) =>
+        i === index ? { ...article, loading: true } : article
+      )
+    );
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://newsapi.org/v2/everything?q=fertility%20treatments&sortBy=publishedAt&apiKey=${NEWS_API_KEY}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch articles");
+
+      const data = await response.json();
+      const newsArticles = data.articles.slice(0, 3); 
+      
+      setModalContent(newsArticles.map(article => ({
+        title: article.title,
+        description: article.description,
+        content: article.content,
+        url: article.url,
+        publishedAt: new Date(article.publishedAt).toLocaleDateString(),
+        source: article.source.name
+      })));
+      
+      setShowModal(true);
+      
+      setArticles((prevArticles) =>
+        prevArticles.map((article, i) =>
+          i === index ? { ...article, loading: false } : article
+        )
+      );
+    } catch (error) {
+      console.error("🚨 Error fetching news:", error);
+      alert("Failed to fetch news. Please try again.");
+      setArticles((prevArticles) =>
+        prevArticles.map((article, i) =>
+          i === index ? { ...article, loading: false } : article
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReadMore = (index, title) => {
+    if (index < articles.length) {
+      fetchFertilityNews(index); 
+    } else {
+      const query = encodeURIComponent(title);
+      window.open(`https://www.google.com/search?q=${query}`, "_blank");
+    }
+  };
 
   const handleSubscribe = (e) => {
     e.preventDefault();
-    if (email && email.includes('@')) {
-      setIsSubscribed(true);
-      setEmail('');
-      console.log('Subscribed with email:', email);
+    fetch('http://localhost:5000/api/newsData/subscribe', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: localStorage.getItem('userEmail') })
+    })
+    .then(response => response.json())
+    .then(res => {
+      if (res.success) {
+        localStorage.setItem('isSubscribed', 'true');
+        window.location.reload();
+      }
+    })
+    .catch(error => console.error('Subscription error:', error));
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handelsubscribe = async (e) => {
+    e.preventDefault();
+    if (email && email.includes("@")) {
+      try {
+        const response = await fetch('http://localhost:5000/api/newsData/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email, 
+            name: localStorage.getItem('name') || 'Subscriber' 
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          setIsSubscribed(true);
+          setEmail("");
+          console.log("Successfully subscribed:", data.message);
+        } else {
+          alert(data.message || "Failed to subscribe. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error subscribing to newsletter:", error);
+        alert("An error occurred. Please try again later.");
+      }
     } else {
-      alert('Please enter a valid email address');
+      alert("Please enter a valid email address");
+    }
+  };
+  
+  const handleAddNewsletter = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("You must be logged in to add a newsletter");
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/newsletter/addnewsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify(newNewsletter),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert("Newsletter created and sent to subscribers successfully!");
+        setShowAddForm(false);
+        setNewNewsletter({ title: "", description: "" });
+        
+        // Refresh the newsletters list
+        const updatedArticles = [...articles, {
+          title: newNewsletter.title,
+          date: `Published: ${new Date().toLocaleDateString()}`,
+          summary: newNewsletter.description,
+          fullContent: "",
+          loading: false,
+        }];
+        setArticles(updatedArticles);
+      } else {
+        alert(data.error || "Failed to create newsletter");
+      }
+    } catch (error) {
+      console.error("Error creating newsletter:", error);
+      alert("An error occurred. Please try again later.");
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <h1 style={styles.mainHeading}>Fertility Health Newsletter</h1>
-        
-        <div style={styles.articlesContainer}>
-          <div style={styles.article}>
-            <h2 style={styles.articleTitle}>Latest Research on Fertility Treatments</h2>
-            <p style={styles.articleDate}>Published: June 15, 2023</p>
-            <p style={styles.articleContent}>
-              Recent studies have shown promising results in new IVF techniques that increase success rates by up to 25%. 
-              Researchers at Stanford University have developed a new method for embryo selection that uses artificial intelligence 
-              to identify the most viable embryos for implantation.
-            </p>
-            <Link to="/newsletter/fertility-treatments">
-              <button style={styles.readMoreButton}>Read More</button>
-            </Link>
-          </div>
-          
-          <div style={styles.article}>
-            <h2 style={styles.articleTitle}>Nutrition Tips for Pregnancy</h2>
-            <p style={styles.articleDate}>Published: May 28, 2023</p>
-            <p style={styles.articleContent}>
-              Maintaining a balanced diet during pregnancy is crucial for both maternal and fetal health. 
-              Experts recommend increasing intake of folate, iron, and omega-3 fatty acids. 
-              This article explores easy meal plans and recipes to ensure you're getting all the nutrients you need.
-            </p>
-            <Link to="/newsletter/nutrition-tips">
-              <button style={styles.readMoreButton}>Read More</button>
-            </Link>
-          </div>
-          
-          <div style={styles.article}>
-            <h2 style={styles.articleTitle}>Understanding Your Menstrual Cycle</h2>
-            <p style={styles.articleDate}>Published: April 10, 2023</p>
-            <p style={styles.articleContent}>
-              Tracking your menstrual cycle can provide valuable insights into your reproductive health. 
-              This comprehensive guide explains the four phases of the menstrual cycle, 
-              how to identify your fertile window, and what changes in your cycle might indicate.
-            </p>
-            <Link to="/newsletter/menstrual-cycle">
-              <button style={styles.readMoreButton}>Read More</button>
-            </Link>
-          </div>
+        <div style={styles.headerContainer}>
+          <h1 style={styles.mainHeading}>Fertility Health Newsletter</h1>
+          <button 
+            onClick={() => setShowAddForm(!showAddForm)} 
+            style={styles.addButton}
+          >
+            <FaPlus style={styles.addIcon} /> Add Newsletter
+          </button>
         </div>
-        
-        <div style={styles.subscriptionContainer}>
-          <div style={styles.subscriptionBox}>
-            <h2 style={styles.subscriptionHeading}>
-              <FaEnvelope style={styles.subscriptionIcon} />
-              Subscribe to Our Newsletter
-            </h2>
-            <p style={styles.subscriptionText}>
-              Get the latest fertility health news, tips, and research delivered directly to your inbox.
-            </p>
-            
-            {isSubscribed ? (
-              <div style={styles.thankYouMessage}>
-                <p>Thank you for subscribing!</p>
-                <p>You'll receive our next newsletter soon.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} style={styles.subscriptionForm}>
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={styles.emailInput}
-                  required
-                />
-                <button type="submit" style={styles.subscribeButton}>
-                  Subscribe <FaPaperPlane style={styles.buttonIcon} />
+
+        {showAddForm && (
+          <div style={styles.addFormContainer}>
+            <h2 style={styles.addFormHeading}>Create New Newsletter</h2>
+            <form onSubmit={handleAddNewsletter} style={styles.addForm}>
+              <input
+                type="text"
+                placeholder="Newsletter Title"
+                value={newNewsletter.title}
+                onChange={(e) => setNewNewsletter({...newNewsletter, title: e.target.value})}
+                style={styles.formInput}
+                required
+              />
+              <textarea
+                placeholder="Newsletter Description"
+                value={newNewsletter.description}
+                onChange={(e) => setNewNewsletter({...newNewsletter, description: e.target.value})}
+                style={{...styles.formInput, minHeight: '100px'}}
+                required
+              />
+              <div style={styles.formButtons}>
+                <button type="submit" style={styles.submitButton}>
+                  Create Newsletter
                 </button>
-              </form>
-            )}
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddForm(false)} 
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
+        )}
+
+        <div style={styles.articlesContainer}>
+          {articles.map((article, index) => (
+            <div key={index} style={styles.article}>
+              <h2 style={styles.articleTitle}>{article.title}</h2>
+              <p style={styles.articleDate}>{article.date}</p>
+              <p style={styles.articleContent}>{article.summary}</p>
+              <button
+                onClick={() => handleReadMore(index, article.title)}
+                style={styles.readMoreButton}
+                disabled={article.loading}
+              >
+                {article.loading ? "Loading..." : "Read More"}
+              </button>
+            </div>
+          ))}
         </div>
+
+        <div style={styles.subscriptionContainer}>
+    <div style={styles.subscriptionBox}>
+      <h2 style={styles.subscriptionHeading}>
+        <FaEnvelope style={styles.subscriptionIcon} />
+        Subscribe to Our Newsletter
+      </h2>
+      <p style={styles.subscriptionText}>
+        Get the latest fertility health news, tips, and research delivered
+        directly to your inbox.
+      </p>
+      
+      {localStorage.getItem('isSubscribed') === 'true' ? (
+        <div style={styles.thankYouMessage}>
+          <p>Thank you for subscribing!</p>
+          <p>You'll receive our next newsletter soon.</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubscribe} style={styles.subscriptionForm}>
+          <button type="submit" style={styles.subscribeButton}>
+            Subscribe <FaPaperPlane style={styles.buttonIcon} />
+          </button>
+        </form>
+      )}
+    </div>
+  </div>
+
+        {showModal && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <button style={styles.closeButton} onClick={closeModal}>
+                <FaTimes />
+              </button>
+              <h2 style={styles.modalTitle}>Latest Fertility News</h2>
+              
+              {isLoading ? (
+                <div style={styles.loadingContainer}>
+                  <p>Loading articles...</p>
+                </div>
+              ) : (
+                <div style={styles.modalArticlesContainer}>
+                  {modalContent.map((article, index) => (
+                    <div key={index} style={styles.modalArticle}>
+                      <h3 style={styles.modalArticleTitle}>{article.title}</h3>
+                      <p style={styles.modalArticleSource}>
+                        Source: {article.source} | Published: {article.publishedAt}
+                      </p>
+                      <p style={styles.modalArticleDescription}>{article.description}</p>
+                      <p style={styles.modalArticleContent}>
+                        {article.content?.replace(/\[\+\d+ chars\]$/, '') || 'No content available'}
+                      </p>
+                      <a 
+                        href={article.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={styles.readFullArticleButton}
+                      >
+                        Read Full Article
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
 const styles = {
   container: {
@@ -118,12 +354,77 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
   },
+  headerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px',
+  },
   mainHeading: {
     fontSize: '36px',
     color: '#ff8c00',
-    textAlign: 'center',
-    marginBottom: '30px',
     fontWeight: '600',
+  },
+  addButton: {
+    backgroundColor: '#ff8c00',
+    color: 'white',
+    border: 'none',
+    padding: '10px 15px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    transition: 'background-color 0.3s',
+  },
+  addIcon: {
+    marginRight: '8px',
+  },
+  addFormContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '30px',
+    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+  },
+  addFormHeading: {
+    fontSize: '22px',
+    color: '#ff8c00',
+    marginBottom: '15px',
+  },
+  addForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  formInput: {
+    padding: '12px 15px',
+    borderRadius: '5px',
+    border: '1px solid #ddd',
+    fontSize: '16px',
+    width: '100%',
+  },
+  formButtons: {
+    display: 'flex',
+    gap: '10px',
+  },
+  submitButton: {
+    backgroundColor: '#ff8c00',
+    color: 'white',
+    border: 'none',
+    padding: '10px 15px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+  },
+  cancelButton: {
+    backgroundColor: '#ccc',
+    color: '#333',
+    border: 'none',
+    padding: '10px 15px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
   },
   articlesContainer: {
     display: 'grid',
@@ -232,6 +533,101 @@ const styles = {
     color: '#2e7d32',
     fontSize: '16px',
   },
+  '@keyframes panAnimation': {
+    '0%': { transform: 'translateX(-10px)' },
+    '100%': { transform: 'translateX(10px)' },
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: '10px',
+    padding: '30px',
+    width: '90%',
+    maxWidth: '800px',
+    maxHeight: '80vh',
+    overflow: 'auto',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: '15px',
+    right: '15px',
+    background: 'none',
+    border: 'none',
+    fontSize: '20px',
+    cursor: 'pointer',
+    color: '#555',
+  },
+  modalTitle: {
+    fontSize: '28px',
+    color: '#ff8c00',
+    marginBottom: '20px',
+    textAlign: 'center',
+  },
+  modalArticlesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px',
+  },
+  modalArticle: {
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#f9f9f9',
+  },
+  modalArticleTitle: {
+    fontSize: '22px',
+    color: '#333',
+    marginBottom: '10px',
+  },
+  modalArticleSource: {
+    fontSize: '14px',
+    color: '#888',
+    marginBottom: '15px',
+    fontStyle: 'italic',
+  },
+  modalArticleDescription: {
+    fontSize: '16px',
+    color: '#444',
+    marginBottom: '15px',
+    fontWeight: 'bold',
+  },
+  modalArticleContent: {
+    fontSize: '16px',
+    color: '#555',
+    lineHeight: '1.6',
+    marginBottom: '20px',
+  },
+  readFullArticleButton: {
+    display: 'inline-block',
+    backgroundColor: '#ff8c00',
+    color: 'white',
+    textDecoration: 'none',
+    padding: '8px 15px',
+    borderRadius: '5px',
+    fontSize: '14px',
+    transition: 'background-color 0.3s',
+  },
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '200px',
+    fontSize: '18px',
+    color: '#555',
+  }
 };
 
 export default Newsletter;
+// *newsletter.js*
