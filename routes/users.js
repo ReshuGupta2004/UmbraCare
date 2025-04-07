@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
     console.log('User registered:', user);
 
     const payload = { user: { id: user.id } };
-jwt.sign(payload, 'your_jwt_secret', { expiresIn: '1h' }, (err, token) => {
+jwt.sign(payload, 'your_jwt_secret', { expiresIn: '100d' }, (err, token) => {
   if (err) throw err;
   res.json({ token });
 });
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const payload = { user: { id: user.id } };
-    jwt.sign(payload, 'your_jwt_secret', { expiresIn: '1h' }, (err, token) => {
+    jwt.sign(payload, 'your_jwt_secret', { expiresIn: '100d' }, (err, token) => {
       if (err) throw err;
       // Send full user details along with the token
       const userResponse = {

@@ -362,6 +362,8 @@ const styles = {
   entriesSection: {
     marginTop: '30px',
     textAlign: 'left',
+    height: '300px',
+    overflowY: 'auto',
   },
   entriesList: {
     listStyle: 'none',
