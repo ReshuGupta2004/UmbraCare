@@ -333,7 +333,7 @@ const styles = {
   },
   transferLabel: {
     fontSize: '16px',
-    color: '#FF95A3', // Changed to match your request
+    color: '#B85170', // Changed to match your request
   },
   input: {
     padding: '10px',

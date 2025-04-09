@@ -291,7 +291,7 @@ const Login = ({ setIsLoggedIn }) => {
                 cursor: 'pointer',
                 background: 'transparent'
               }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFF5F5'} // Light pink hover
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#B85170'} // Light pink hover
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               Close
@@ -410,7 +410,7 @@ const styles = {
   },
   label: {
     fontSize: '16px',
-    color: '#FF95A3', // Changed to secondary color for labels
+    color: '#B85170', // Changed to secondary color for labels
   },
   input: {
     padding: '10px',

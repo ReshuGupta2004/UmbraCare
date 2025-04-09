@@ -865,7 +865,7 @@ const Dashboard = () => {
                       x: Object.keys(cycleHistory['2024']),
                       y: cycleHistory['2024'].map((val, i) => isVisible ? val : 20),
                       name: '2024',
-                      line: { color: '#FF95A3', width: 2, shape: 'spline', smoothing: 1.3 }, // Changed to secondary color
+                      line: { color: '#B85170', width: 2, shape: 'spline', smoothing: 1.3 }, // Changed to secondary color
                       marker: { size: 6 }
                     },
                     {
@@ -935,9 +935,9 @@ const Dashboard = () => {
                       steps: [
                         { range: [0, 10], color: '#FFF5F5' }, // Light pink
                         { range: [10, 20], color: '#FFD9E1' }, // Slightly darker pink
-                        { range: [20, 30], color: '#FF95A3' } // Secondary color
+                        { range: [20, 30], color: '#B85170' } // Secondary color
                       ],
-                      threshold: { line: { color: '#FF95A3', width: 2 }, thickness: 0.2, value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0 } // Changed to secondary color
+                      threshold: { line: { color: '#B85170', width: 2 }, thickness: 0.2, value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0 } // Changed to secondary color
                     }
                   }]}
                   layout={{
@@ -988,7 +988,7 @@ const Dashboard = () => {
                   labels: ["Cycle", "Menstrual", "Follicular", "Ovulation", "Luteal", "Day 1-5", "Day 6-11", "Day 12-15", "Day 15-17", "Day 18-28"],
                   parents: ["", "Cycle", "Cycle", "Cycle", "Cycle", "Menstrual", "Follicular", "Follicular", "Ovulation", "Luteal"],
                   marker: {
-                    colors: ['#FFF5F5', '#FF95A3', '#FFD9E1', '#FFCAD3', '#B85170', '#FFE6EB', '#FFD9E1', '#FFCAD3', '#FF95A3', '#B85170'], // Adjusted to pink shades
+                    colors: ['#FFF5F5', '#B85170', '#FFD9E1', '#FFCAD3', '#B85170', '#FFE6EB', '#FFD9E1', '#FFCAD3', '#B85170', '#B85170'], // Adjusted to pink shades
                     line: { width: 1, color: '#B85170' } // Changed to primary color
                   },
                   branchvalues: 'total',
@@ -1051,7 +1051,7 @@ const Dashboard = () => {
                       'bar': { 'color': "#B85170", 'thickness': 0.25, 'line': { 'width': 1, 'color': '#A04763' } }, // Changed to primary color and darker shade
                       'bgcolor': "rgba(184, 81, 112, 0.1)", // Lightened shade of primary color
                       'steps': [{ 'range': [0, 5], 'color': "rgba(184, 81, 112, 0.6)" }], // Adjusted to primary color shade
-                      'threshold': { 'line': { 'color': "#FF95A3", 'width': 2 }, 'thickness': 0.8, 'value': 5 } // Changed to secondary color
+                      'threshold': { 'line': { 'color': "#B85170", 'width': 2 }, 'thickness': 0.8, 'value': 5 } // Changed to secondary color
                     }
                   },
                   {
@@ -1135,7 +1135,7 @@ const Dashboard = () => {
                     x: ['Week 4', 'Week 8', 'Week 12', 'Week 16', 'Week 20', 'Week 24', 'Week 28', 'Week 32', 'Week 36', 'Week 40'],
                     y: [85, 88, 86, 90, 92, 95, 98, 96, 99, 101],
                     yaxis: 'y2',
-                    line: {color: '#FF95A3', width: 3, dash: 'dot', shape: 'spline'}, // Changed to secondary color
+                    line: {color: '#B85170', width: 3, dash: 'dot', shape: 'spline'}, // Changed to secondary color
                     marker: {symbol: 'hexagram', size: 10}
                   }
                 ]}
@@ -1147,7 +1147,7 @@ const Dashboard = () => {
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   xaxis: { title: 'Pregnancy Timeline', gridcolor: 'rgba(184,81,112,0.1)' }, // Adjusted grid color
                   yaxis: { title: 'Heart Rate (bpm)', range: [65, 110], gridcolor: 'rgba(184,81,112,0.1)', titlefont: {color: '#B85170'} }, // Changed to primary color
-                  yaxis2: { title: 'Blood Sugar (mg/dL)', overlaying: 'y', side: 'right', range: [75, 110], titlefont: {color: '#FF95A3'} } // Changed to secondary color
+                  yaxis2: { title: 'Blood Sugar (mg/dL)', overlaying: 'y', side: 'right', range: [75, 110], titlefont: {color: '#B85170'} } // Changed to secondary color
                 }}
                 config={{displayModeBar: false}}
               />
@@ -1171,7 +1171,7 @@ const Dashboard = () => {
                     low: [108, 112, 115],
                     close: [118, 120, 124],
                     increasing: {line: {color: '#B85170'}}, // Changed to primary color
-                    decreasing: {line: {color: '#FF95A3'}} // Changed to secondary color
+                    decreasing: {line: {color: '#B85170'}} // Changed to secondary color
                   },
                   {
                     type: 'scatter',
@@ -1310,7 +1310,7 @@ const styles = {
     padding: '12px 15px',
     color: '#FFFFFF',
     textAlign: 'center',
-    borderBottom: '1px solid #FF95A3' // Changed to secondary color
+    borderBottom: '1px solid #B85170' // Changed to secondary color
   },
   cardTitle: {
     margin: 0,
@@ -1333,7 +1333,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '15px',
-    borderTop: '1px dashed #FF95A3', // Changed to secondary color
+    borderTop: '1px dashed #B85170', // Changed to secondary color
     paddingTop: '15px'
   },
   metricColumn: {
@@ -1343,7 +1343,7 @@ const styles = {
     backgroundColor: '#FFF5F5', // Light pink background
     flex: 1,
     margin: '0 5px',
-    border: '1px solid #FF95A3', // Changed to secondary color
+    border: '1px solid #B85170', // Changed to secondary color
     transition: 'all 0.3s ease'
   },
   metricHeader: {
@@ -1361,7 +1361,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '15px',
-    borderTop: '1px dashed #FF95A3', // Changed to secondary color
+    borderTop: '1px dashed #B85170', // Changed to secondary color
     paddingTop: '15px'
   },
   predictionColumn: {
@@ -1371,7 +1371,7 @@ const styles = {
     backgroundColor: '#FFF5F5', // Light pink background
     flex: 1,
     margin: '0 5px',
-    border: '1px solid #FF95A3', // Changed to secondary color
+    border: '1px solid #B85170', // Changed to secondary color
     transition: 'all 0.3s ease'
   },
   predictionHeader: {
@@ -1427,7 +1427,7 @@ const styles = {
   currentDayBadge: {
     fontSize: '12px',
     color: '#FFFFFF',
-    backgroundColor: '#FF95A3', // Changed to secondary color
+    backgroundColor: '#B85170', // Changed to secondary color
     padding: '2px 8px',
     borderRadius: '12px',
     marginLeft: '10px',

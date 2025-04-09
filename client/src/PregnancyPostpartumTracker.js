@@ -902,7 +902,7 @@ const styles = {
   },
   highlightedLabel: { // Updated to include all specified labels
     fontSize: '16px',
-    color: '#FF95A3',
+    color: '#B85170',
   },
   input: {
     padding: '10px',

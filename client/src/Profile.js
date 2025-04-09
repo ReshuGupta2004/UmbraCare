@@ -563,7 +563,7 @@ const styles = {
   },
   label: {
     fontSize: '16px',
-    color: '#FF95A3', // Changed to subheading color from previous components
+    color: '#B85170', // Changed to subheading color from previous components
     fontWeight: '500',
   },
   input: {

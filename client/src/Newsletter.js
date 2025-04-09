@@ -711,7 +711,6 @@
 
 // export default Newsletter;
 
-
 import React, { useState, useEffect } from "react";
 import { FaEnvelope, FaPaperPlane, FaTimes, FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -1183,7 +1182,7 @@ const styles = {
   },
   addFormHeading: {
     fontSize: '22px',
-    color: '#FF95A3',
+    color: '#B85170',
     marginBottom: '15px',
   },
   addForm: {
@@ -1292,7 +1291,7 @@ const styles = {
   },
   subscriptionHeading: {
     fontSize: '24px',
-    color: '#FF95A3',
+    color: '#B85170',
     marginBottom: '15px',
     display: 'flex',
     alignItems: 'center',
@@ -1337,10 +1336,10 @@ const styles = {
     marginLeft: '10px',
   },
   thankYouMessage: {
-    backgroundColor: '#e6f7e6',
+    backgroundColor: '#E7E5FF', // Changed to purple
     padding: '20px',
     borderRadius: '5px',
-    color: '#2e7d32',
+    color: '#3D348B', // Changed to dark purple
     fontSize: '16px',
   },
   '@keyframes panAnimation': {
@@ -1381,7 +1380,7 @@ const styles = {
   },
   modalTitle: {
     fontSize: '28px',
-    color: '#FF95A3',
+    color: '#B85170',
     marginBottom: '20px',
     textAlign: 'center',
   },

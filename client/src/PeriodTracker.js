@@ -733,7 +733,7 @@ const styles = {
   },
   transferLabel: {
     fontSize: '16px',
-    color: '#FF95A3', // Changed to match your request for labels
+    color: '#B85170', // Changed to match your request for labels
   },
   input: {
     padding: '10px',

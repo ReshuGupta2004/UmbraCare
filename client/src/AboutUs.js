@@ -272,7 +272,7 @@ const styles = {
   },
   subHeading: {
     fontSize: '20px',
-    color: '#FF95A3',
+    color: '#B85170',
     marginBottom: '15px',
     fontWeight: '500',
   },
@@ -284,7 +284,7 @@ const styles = {
   },
   tagline: {
     fontSize: '18px',
-    color: '#FF95A3',
+    color: '#B85170',
     fontWeight: '500',
     marginTop: '20px',
   },
@@ -294,7 +294,7 @@ const styles = {
   },
   featureTitle: {
     fontSize: '18px',
-    color: '#FF95A3',
+    color: '#B85170',
     marginBottom: '10px',
     fontWeight: '500',
   },
