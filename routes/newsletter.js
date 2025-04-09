@@ -49,7 +49,7 @@ router.post('/addnewsletter', auth, async (req, res) => {
             <h4>${article.title}</h4>
             <p><i>Source: ${article.source.name} | Published: ${new Date(article.publishedAt).toLocaleDateString()}</i></p>
             <p>${article.description || 'No description available'}</p>
-            <a href="${article.url}" style="display: inline-block; background-color: #ff8c00; color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 14px;">Read Full Article</a>
+            <a href="${article.url}" style="display: inline-block; background-color: #ff69b4; color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 14px;">Read Full Article</a>
           </div>
         `;
       });

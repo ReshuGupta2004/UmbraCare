@@ -4,6 +4,7 @@ import { FaBaby, FaCalendarAlt, FaFlask, FaUserMd } from 'react-icons/fa';
 import Plot from 'react-plotly.js';
 import Plotly from 'plotly.js-dist-min';
 import axios from 'axios';
+import SideNavbar from './sidenavbar/sidenav';
 
 function list(start, end) {
   return Array.from({length: end - start + 1}, (v, k) => k + start);
@@ -120,9 +121,6 @@ const Dashboard = () => {
   useEffect(() => {
     setIsVisible(true);
 
-    // console.log(predictionData?.prediction?.currentDayOfCycle)
-    
-    // Fetch prediction data when component mounts
     const getPredictionData = async () => {
       const data = await fetchPredictionData();
       if (data) {
@@ -145,6 +143,7 @@ const Dashboard = () => {
 
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.content}>
         <h1 style={styles.mainHeading}>Welcome to Umbracare</h1>
         <p style={styles.subHeading}>PREDICT.PLAN.PROSPER - SMARTER WOMEN'S HEALTH</p>
@@ -173,7 +172,7 @@ const Dashboard = () => {
                       x: Object.keys(cycleHistory['2025']),
                       y: cycleHistory['2025'].map((val, i) => isVisible ? val : 20),
                       name: '2025',
-                      line: { color: '#FF8C00', width: 3, shape: 'spline', smoothing: 1.3 },
+                      line: { color: '#ff69b4', width: 3, shape: 'spline', smoothing: 1.3 },
                       marker: { size: 8 }
                     }
                   ]}
@@ -226,11 +225,11 @@ const Dashboard = () => {
                     type: 'indicator',
                     mode: 'number+gauge+delta',
                     value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0,
-                    delta: { reference: 30, decreasing: { color: '#FF8C00' }, font: { size: 12 } },
-                    number: { font: { size: 22, color: '#FF8C00' }, suffix: ' days' },
+                    delta: { reference: 30, decreasing: { color: '#ff69b4' }, font: { size: 12 } },
+                    number: { font: { size: 22, color: '#ff69b4' }, suffix: ' days' },
                     gauge: {
                       axis: { range: [0, 30], tickfont: { size: 10 } },
-                      bar: { color: '#FF8C00', thickness: 0.2, line: { color: isVisible ? '#FF8C00' : 'transparent', width: 2 } },
+                      bar: { color: '#ff69b4', thickness: 0.2, line: { color: isVisible ? '#ff69b4' : 'transparent', width: 2 } },
                       bgcolor: '#FFFBF8',
                       steps: [
                         { range: [0, 10], color: '#FFF5EB' },
@@ -288,8 +287,8 @@ const Dashboard = () => {
                   labels: ["Cycle", "Menstrual", "Follicular", "Ovulation", "Luteal", "Day 1-5", "Day 6-11", "Day 12-15", "Day 15-17", "Day 18-28"],
                   parents: ["", "Cycle", "Cycle", "Cycle", "Cycle", "Menstrual", "Follicular", "Follicular", "Ovulation", "Luteal"],
                   marker: {
-                    colors: ['#FFF5EB', '#FFC299', '#FFD4A3', '#FFAA80', '#FF8C00', '#FFE0CC', '#FFE4C4', '#FFD4A3', '#FFAA80', '#FF8C00'],
-                    line: { width: 1, color: '#FF8C00' }
+                    colors: ['#FFF5EB', '#FFC299', '#FFD4A3', '#FFAA80', '#ff69b4', '#FFE0CC', '#FFE4C4', '#FFD4A3', '#FFAA80', '#ff69b4'],
+                    line: { width: 1, color: '#ff69b4' }
                   },
                   branchvalues: 'total',
                   textinfo: 'label',
@@ -311,7 +310,7 @@ const Dashboard = () => {
                     font: {
                       family: 'Poppins',
                       size: 14,
-                      color: '#FF8C00',
+                      color: '#ff69b4',
                       weight: 'bold'
                     }
                   }] : []
@@ -342,9 +341,9 @@ const Dashboard = () => {
                     type: 'indicator',
                     mode: 'number+gauge+delta',
                     value: 5,
-                    delta: { reference: 40, decreasing: { color: '#FF8C00' }, font: { size: 14 } },
+                    delta: { reference: 40, decreasing: { color: '#ff69b4' }, font: { size: 14 } },
                     domain: { 'x': [0.05, 0.95], 'y': [0.88, 0.98] },
-                    title: { 'text': `<b style="font-size:18px;color:#FF8C00">5 Weeks Pregnant</b><br><span style="font-size:14px;color:#666">35 Weeks to Go</span>`, 'font': { 'family': 'Poppins' } },
+                    title: { 'text': `<b style="font-size:18px;color:#ff69b4">5 Weeks Pregnant</b><br><span style="font-size:14px;color:#666">35 Weeks to Go</span>`, 'font': { 'family': 'Poppins' } },
                     gauge: {
                       'shape': "bullet",
                       'axis': { 'range': [null, 40], 'visible': false },
@@ -358,7 +357,7 @@ const Dashboard = () => {
                     type: 'indicator',
                     mode: 'number',
                     value: pregnancyData.sizes[4],
-                    number: { 'suffix': " inches", 'font': { 'size': 28, 'color': '#FF8C00', 'family': 'Poppins' } },
+                    number: { 'suffix': " inches", 'font': { 'size': 28, 'color': '#ff69b4', 'family': 'Poppins' } },
                     domain: { 'x': [0.05, 0.45], 'y': [0.6, 0.8] },
                     title: { 'text': "<b>Current Size</b>", 'font': { 'size': 14, 'family': 'Poppins' } }
                   },
@@ -366,7 +365,7 @@ const Dashboard = () => {
                     type: 'indicator',
                     mode: 'number',
                     value: 0,
-                    number: { 'prefix': `<span style="font-size:20px;color:#FF8C00">👶 Baby size like:<br><span style="font-size:24px;font-weight:bold">${pregnancyData.comparisons[4]}</span></span>` },
+                    number: { 'prefix': `<span style="font-size:20px;color:#ff69b4">👶 Baby size like:<br><span style="font-size:24px;font-weight:bold">${pregnancyData.comparisons[4]}</span></span>` },
                     domain: { 'x': [0.55, 0.95], 'y': [0.6, 0.8] }
                   },
                   {
@@ -377,7 +376,7 @@ const Dashboard = () => {
                     line: { 'color': 'rgba(255, 140, 0, 0.7)', 'width': 4, 'shape': 'spline', 'smoothing': 1.2 },
                     marker: {
                       'size': pregnancyData.sizes.map(s => Math.max(8, s * 15)),
-                      'color': pregnancyData.sizes.map((s, i) => i === 4 ? '#FF8C00' : 'rgba(255, 140, 0, 0.5)'),
+                      'color': pregnancyData.sizes.map((s, i) => i === 4 ? '#ff69b4' : 'rgba(255, 140, 0, 0.5)'),
                       'line': { 'width': 1, 'color': 'white' },
                       'symbol': pregnancyData.weeks.map((w, i) => i === 4 ? 'diamond' : 'circle'),
                       'opacity': 0.8
@@ -391,7 +390,7 @@ const Dashboard = () => {
                     x: [5],
                     y: [pregnancyData.sizes[4]],
                     mode: 'markers',
-                    marker: { 'size': 30, 'color': '#FF8C00', 'symbol': 'diamond', 'line': { 'width': 2, 'color': 'white' }, 'opacity': 0.9 },
+                    marker: { 'size': 30, 'color': '#ff69b4', 'symbol': 'diamond', 'line': { 'width': 2, 'color': 'white' }, 'opacity': 0.9 },
                     'hoverinfo': 'skip'
                   }
                 ]}
@@ -455,7 +454,7 @@ const Dashboard = () => {
           </div>
 
           {/* Pressure & Glucose */}
-          <div style={styles.cardContainer}>
+          {/* <div style={styles.cardContainer}>
             <div style={styles.cardHeader}>
               <h3 style={styles.cardTitle}>🩸 Pressure & Glucose</h3>
             </div>
@@ -470,7 +469,7 @@ const Dashboard = () => {
                     high: [122, 125, 128],
                     low: [108, 112, 115],
                     close: [118, 120, 124],
-                    increasing: {line: {color: '#FF8C00'}},
+                    increasing: {line: {color: '#ff69b4'}},
                     decreasing: {line: {color: '#FF6B8B'}}
                   },
                   {
@@ -497,7 +496,7 @@ const Dashboard = () => {
                 config={{displayModeBar: false}}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div style={styles.buttonGrid}>
@@ -530,12 +529,15 @@ const Dashboard = () => {
 const styles = {
   container: {
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
     paddingTop: '50px',
+    backgroundColor: '#ff69b4',
+    backgroundImage: 'url("/imgbg.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
   },
   content: {
     padding: '40px',
@@ -545,8 +547,10 @@ const styles = {
     justifyContent: 'center',
     display: 'flex',
     flexDirection: 'column',
-    width: '100%',
+    width: 'calc(100% - 250px)',  
+    marginLeft: '250px',  
     maxWidth: '1400px',
+    transition: 'width 0.3s ease, margin-left 0.3s ease',
   },
   mainHeading: {
     fontSize: '38px',
@@ -578,7 +582,7 @@ const styles = {
     flex: '1 1 30%',
     minWidth: '300px',
     maxWidth: '400px',
-    border: '1px solid #FF8C00',
+    border: '1px solid #ff69b4',
     borderRadius: '10px',
     overflow: 'hidden',
     boxShadow: '0 4px 12px rgba(255,140,0,0.1)',
@@ -588,7 +592,7 @@ const styles = {
     transition: 'transform 0.4s ease-out 0.2s'
   },
   cardHeader: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#ff69b4',
     padding: '12px 15px',
     color: 'white',
     textAlign: 'center',
@@ -637,7 +641,7 @@ const styles = {
   metricValue: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#FF8C00'
+    color: '#ff69b4'
   },
   predictionGrid: {
     display: 'flex',
@@ -665,7 +669,7 @@ const styles = {
   predictionDate: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#FF8C00'
+    color: '#ff69b4'
   },
   buttonGrid: {
     display: 'grid',
@@ -674,7 +678,7 @@ const styles = {
     marginBottom: '30px'
   },
   gridButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: '#fff',
     padding: '15px',
     fontSize: '16px',
@@ -705,6 +709,24 @@ const styles = {
   newsletterHeading: {
     color: 'black',
     fontSize: '15px',
+  },
+  currentDayBadge: {
+    backgroundColor: '#FFF5EB',
+    color: '#ff69b4',
+    padding: '3px 8px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    display: 'inline-block',
+    marginLeft: '10px',
+    border: '1px solid #FFD4A3'
+  },
+  phaseIndicator: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#ff69b4',
+    marginTop: '10px',
+    fontSize: '16px'
   }
 };
 

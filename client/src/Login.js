@@ -71,7 +71,7 @@ const Login = ({ setIsLoggedIn }) => {
                 justifyContent: 'center',
                 fontSize: '14px',
                 fontWeight: '500',
-                color: '#ff8c00',
+                color: '#ff69b4',
                 cursor: 'pointer',
                 background: 'transparent'
               }}
@@ -144,6 +144,7 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     background: 'none',
+    backgroundColor: '#ff69b4',
   },
   formContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)', // Increased opacity for better readability
@@ -151,13 +152,13 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
+    border: '2px solid #ff69b4',
     width: '100%',
     maxWidth: '400px',
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '10px',
     fontWeight: '600',
   },
@@ -190,7 +191,7 @@ const styles = {
     boxSizing: 'border-box',
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: '#fff',
     padding: '10px 20px',
     fontSize: '16px',
@@ -209,7 +210,7 @@ const styles = {
     color: '#333',
   },
   link: {
-    color: '#ff8c00',
+    color: '#ff69b4',
     textDecoration: 'none',
     fontWeight: 'bold',
   },

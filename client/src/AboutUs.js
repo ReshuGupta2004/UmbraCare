@@ -1,9 +1,11 @@
 // client/src/AboutUs.js
 import React from 'react';
+import SideNavbar from './sidenavbar/sidenav';
 
 const AboutUs = () => {
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.infoContainer}>
         <h2 style={styles.heading}>About Us</h2>
         <h3 style={styles.subHeading}>PREDICT. PLAN. PROSPER - SMARTER WOMEN'S HEALTH 🌿</h3>
@@ -89,7 +91,8 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
-    paddingTop: '90px', // To account for the fixed navbar (updated to 90px as per previous changes)
+    paddingTop: '90px', 
+    backgroundColor: '#ff69b4',
   },
   infoContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -97,19 +100,23 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
-    width: '100%',
-    maxWidth: '1000px', // Increased from 800px to 1000px
+    border: '2px solid #ff69b4',
+    // width: '100%',
+    // maxWidth: '1000px',
+    width: 'calc(100% - 250px)', /* Adjust width based on sidebar being open */
+    marginLeft: '250px', /* Match the width of the open sidebar */
+    maxWidth: '1000px',
+    transition: 'width 0.3s ease, margin-left 0.3s ease',  
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '20px',
     fontWeight: '600',
   },
   subHeading: {
     fontSize: '20px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '15px',
     fontWeight: '500',
   },
@@ -121,7 +128,7 @@ const styles = {
   },
   tagline: {
     fontSize: '18px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     fontWeight: '500',
     marginTop: '20px',
   },
@@ -131,7 +138,7 @@ const styles = {
   },
   featureTitle: {
     fontSize: '18px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '10px',
     fontWeight: '500',
   },

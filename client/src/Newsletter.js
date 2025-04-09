@@ -5,6 +5,7 @@ import { MdDeleteSweep } from "react-icons/md";
 import axios from 'axios';
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
+import SideNavbar from './sidenavbar/sidenav';
 
 const NEWS_API_KEY = "49d8202a37b24a62b7fd9d6fa7f6aac2"; 
 
@@ -21,37 +22,37 @@ const Newsletter = () => {
   const [newNewsletter, setNewNewsletter] = useState({ title: "", description: "" });
 
   
-  React.useEffect(() => {
-    const fetchNewsletters = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/newsletter/newsletter');
-        if (!response.ok) {
-          throw new Error('Failed to fetch newsletters');
-        }
-        
-        const data = await response.json();
-        
-        // Transform the data to match our component's format
-        const formattedArticles = data.map(newsletter => ({
-          _id: newsletter._id, // Ensure we capture the ID for deletion
-          title: newsletter.title,
-          date: `Published: ${new Date(newsletter.publishedAt).toLocaleDateString()}`,
-          summary: newsletter.description,
-          fullContent: "",
-          loading: false,
-        }));
-        
-        setArticles(formattedArticles);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching newsletters:', err);
-        setError('Failed to load newsletters. Please try again later.');
-        setLoading(false);
-      }
-    };
+ const fetchNewsletters = async () => {
+  try {
+    const response = await fetch('https://backend-umbracare.onrender.com/api/newsletter/newsletter');
+    if (!response.ok) {
+      throw new Error('Failed to fetch newsletters');
+    }
+    
+    const data = await response.json();
+    
+    const formattedArticles = data.map(newsletter => ({
+      _id: newsletter._id,
+      title: newsletter.title,
+      date: `Published: ${new Date(newsletter.publishedAt).toLocaleDateString()}`,
+      summary: newsletter.description,
+      fullContent: "",
+      loading: false,
+    }));
+    
+    setArticles(formattedArticles);
+    setLoading(false);
+  } catch (err) {
+    console.error('Error fetching newsletters:', err);
+    setError('Failed to load newsletters. Please try again later.');
+    setLoading(false);
+  }
+};
 
-    fetchNewsletters();
-  }, []);
+React.useEffect(() => {
+  fetchNewsletters();
+}, []);
+
   const navigate = useNavigate();
 
   const fetchFertilityNews = async (index) => {
@@ -109,51 +110,55 @@ const Newsletter = () => {
     }
   };
 
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Please log in to subscribe');
-        return;
-      }
+  // const handleSubscribe = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     if (!token) {
+  //       toast.error('Please log in to subscribe');
+  //       return;
+  //     }
 
-      await axios.post('http://localhost:5000/api/newsletter/subscribe', {}, {
-        headers: { 'x-auth-token': token }
-      });
+  //     await axios.post('https://backend-umbracare.onrender.com/api/newsData/subscribe', {}, {
+  //       headers: { 'x-auth-token': token }
+  //     });
 
-      localStorage.setItem('isSubscribed', 'true');
-      toast.success('Successfully subscribed to newsletter!');
-    } catch (err) {
-      console.error('Error subscribing to newsletter:', err);
-      toast.error(err.response?.data?.msg || 'Error subscribing to newsletter');
-    }
-  };
+  //     localStorage.setItem('isSubscribed', 'true');
+  //     toast.success('Successfully subscribed to newsletter!');
+  //   } catch (err) {
+  //     console.error('Error subscribing to newsletter:', err);
+  //     toast.error(err.response?.data?.msg || 'Error subscribing to newsletter');
+  //   }
+  // };
 
   const closeModal = () => {
     setShowModal(false);
   };
 
-  const handelsubscribe = async (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
+
+    const email = localStorage.getItem("userEmail");
+    const name = localStorage.getItem("name") || "Subscriber";
+
     if (email && email.includes("@")) {
       try {
-        const response = await fetch('http://localhost:5000/api/newsData/subscribe', {
-          method: 'POST',
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/api/newsData/subscribe", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            "x-auth-token": token,
           },
-          body: JSON.stringify({ 
-            email, 
-            name: localStorage.getItem('name') || 'Subscriber' 
-          }),
+          body: JSON.stringify({ email, name }),
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
           setIsSubscribed(true);
-          setEmail("");
+          localStorage.setItem("isSubscribed", "true");
           console.log("Successfully subscribed:", data.message);
         } else {
           alert(data.message || "Failed to subscribe. Please try again.");
@@ -163,7 +168,7 @@ const Newsletter = () => {
         alert("An error occurred. Please try again later.");
       }
     } else {
-      alert("Please enter a valid email address");
+      alert("User email not found or invalid. Please make sure you're logged in.");
     }
   };
   
@@ -179,7 +184,7 @@ const Newsletter = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/newsletter/addnewsletter', {
+      const response = await fetch('https://backend-umbracare.onrender.com/api/newsletter/addnewsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,12 +228,13 @@ const Newsletter = () => {
         return;
       }
 
-      await axios.delete(`http://localhost:5000/api/newsletter/newsletter/${id}`, {
+      await axios.delete(`https://backend-umbracare.onrender.com/api/newsletter/newsletter/${id}`, {
         headers: { 'x-auth-token': token }
       });
 
       setArticles(articles.filter(article => article._id !== id));
       toast.success('Newsletter deleted successfully');
+      fetchNewsletters();
     } catch (err) {
       console.error('Error deleting newsletter:', err);
       toast.error(err.response?.data?.msg || 'Error deleting newsletter');
@@ -237,6 +243,7 @@ const Newsletter = () => {
 
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.content}>
         <div style={styles.headerContainer}>
           <h1 style={styles.mainHeading}>Fertility Health Newsletter</h1>
@@ -324,17 +331,16 @@ const Newsletter = () => {
         </div>
 
         <div style={styles.subscriptionContainer}>
-    <div style={styles.subscriptionBox}>
+        <div style={styles.subscriptionBox}>
       <h2 style={styles.subscriptionHeading}>
         <FaEnvelope style={styles.subscriptionIcon} />
         Subscribe to Our Newsletter
       </h2>
       <p style={styles.subscriptionText}>
-        Get the latest fertility health news, tips, and research delivered
-        directly to your inbox.
+        Get the latest fertility health news, tips, and research delivered directly to your inbox.
       </p>
-      
-      {localStorage.getItem('isSubscribed') === 'true' ? (
+
+      {isSubscribed ? (
         <div style={styles.thankYouMessage}>
           <p>Thank you for subscribing!</p>
           <p>You'll receive our next newsletter soon.</p>
@@ -411,14 +417,18 @@ const styles = {
     fontFamily: "'Poppins', sans-serif",
     padding: '20px',
     paddingTop: '90px',
+    backgroundColor: '#ff69b4',
   },
   content: {
-    width: '100%',
-    maxWidth: '1200px',
+    // width: '100%',
+    // maxWidth: '1200px',
     padding: '30px',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    marginLeft: '250px',
+    transition: 'width 0.3s ease, margin-left 0.3s ease',  
+    maxWidth: '1000px',
   },
   headerContainer: {
     display: 'flex',
@@ -428,11 +438,11 @@ const styles = {
   },
   mainHeading: {
     fontSize: '36px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     fontWeight: '600',
   },
   addButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '10px 15px',
@@ -455,7 +465,7 @@ const styles = {
   },
   addFormHeading: {
     fontSize: '22px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '15px',
   },
   addForm: {
@@ -475,7 +485,7 @@ const styles = {
     gap: '10px',
   },
   submitButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '10px 15px',
@@ -538,7 +548,7 @@ const styles = {
     marginBottom: '20px',
   },
   readMoreButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '8px 15px',
@@ -554,7 +564,7 @@ const styles = {
   },
   subscriptionBox: {
     backgroundColor: '#fff8e6',
-    border: '2px solid #ff8c00',
+    border: '2px solid #ff69b4',
     borderRadius: '10px',
     padding: '10px',
     width: '100%',
@@ -563,7 +573,7 @@ const styles = {
   },
   subscriptionHeading: {
     fontSize: '24px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '15px',
     display: 'flex',
     alignItems: 'center',
@@ -590,7 +600,7 @@ const styles = {
     width: '90%',
   },
   subscribeButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '12px 20px',
@@ -651,7 +661,7 @@ const styles = {
   },
   modalTitle: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '20px',
     textAlign: 'center',
   },
@@ -691,7 +701,7 @@ const styles = {
   },
   readFullArticleButton: {
     display: 'inline-block',
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     textDecoration: 'none',
     padding: '8px 15px',
@@ -711,5 +721,3 @@ const styles = {
 
 export default Newsletter;
 // *newsletter.js*
-
-//git

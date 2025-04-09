@@ -39,7 +39,7 @@ const App = () => {
           <SplashScreen />
         ) : (
           <>
-            {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}
+            {/* {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />} */}
             <Routes>
               <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
               <Route path="/register" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Register setIsLoggedIn={setIsLoggedIn} />} />
@@ -69,6 +69,7 @@ const styles = {
     minHeight: '100vh',
     backgroundImage: `url('/background.jpg')`,
     backgroundSize: 'cover',
+    backgroundColor: '#b15870',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     position: 'relative',

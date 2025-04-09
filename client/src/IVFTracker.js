@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { FaCalendarAlt } from 'react-icons/fa';
-
+import SideNavbar from './sidenavbar/sidenav';
 const IVFTracker = () => {
   const [transferDate, setTransferDate] = useState(new Date('2025-03-22')); // Default to 22nd March 2025
   const [showTransferCalendar, setShowTransferCalendar] = useState(false);
@@ -44,6 +44,7 @@ const IVFTracker = () => {
 
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.trackerContainer}>
         <h2 style={styles.heading}>IVF Tracker</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -102,7 +103,8 @@ const styles = {
     alignItems: 'center',
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
-    boxSizing: 'border-box',
+    boxSizing: 'border-box',  
+    backgroundColor: '#ff69b4',
   },
   trackerContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -110,13 +112,15 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
-    width: '100%',
-    maxWidth: '600px',
+    border: '2px solid #ff69b4',
+    width: 'calc(100% - 250px)', 
+    marginLeft: '250px',  
+    transition: 'width 0.3s ease, margin-left 0.3s ease',  
+    maxWidth: '1000px',
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -158,11 +162,11 @@ const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
     fontSize: '20px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     cursor: 'pointer',
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: '#fff',
     padding: '10px 20px',
     fontSize: '16px',

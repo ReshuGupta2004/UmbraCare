@@ -57,7 +57,7 @@ const styles = {
     justifyContent: 'space-between', 
     alignItems: 'center', 
     padding: '10px 30px', 
-    backgroundColor: '#ff8c00', 
+    backgroundColor: '#ff69b4', 
     color: '#fff', 
     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', 
     position: 'fixed', 
@@ -96,13 +96,13 @@ const styles = {
   },
   activeLink: { 
     backgroundColor: '#fff', 
-    color: '#ff8c00' 
+    color: '#ff69b4' 
   },
   logoutButton: { 
     display: 'flex', 
     alignItems: 'center', 
     backgroundColor: '#fff', 
-    color: '#ff8c00', 
+    color: '#ff69b4', 
     padding: '8px 15px', 
     border: 'none', 
     borderRadius: '5px', 

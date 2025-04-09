@@ -278,7 +278,7 @@
 //               style={styles.voiceButton}
 //               onClick={handleVoiceRecognition}
 //             >
-//               <FaMicrophone size={16} color="#ff8c00" />
+//               <FaMicrophone size={16} color="#ff69b4" />
 //             </button>
             
 //             <input
@@ -295,7 +295,7 @@
 //               style={styles.sendButton}
 //               onClick={() => handleSendMessage()}
 //             >
-//               <IoSend size={16} color="#ff8c00" />
+//               <IoSend size={16} color="#ff69b4" />
 //             </button>
 //           </div>
 //         </div>
@@ -316,7 +316,7 @@
 //     zIndex: 1000,
 //   },
 //   chatbotIcon: {
-//     backgroundColor: '#ff8c00',
+//     backgroundColor: '#ff69b4',
 //     color: '#fff',
 //     padding: '15px',
 //     borderRadius: '50%',
@@ -333,7 +333,7 @@
 //     width: '350px',
 //     height: '500px',
 //     marginBottom: '10px',
-//     border: '2px solid #ff8c00',
+//     border: '2px solid #ff69b4',
 //     display: 'flex',
 //     flexDirection: 'column',
 //     position: 'relative',
@@ -344,13 +344,13 @@
 //     right: '10px',
 //     backgroundColor: 'transparent',
 //     border: 'none',
-//     color: '#ff8c00',
+//     color: '#ff69b4',
 //     fontSize: '20px',
 //     cursor: 'pointer',
 //     zIndex: 10,
 //   },
 //   chatHeader: {
-//     backgroundColor: '#ff8c00',
+//     backgroundColor: '#ff69b4',
 //     padding: '15px',
 //     borderTopLeftRadius: '8px',
 //     borderTopRightRadius: '8px',
@@ -398,14 +398,14 @@
 //     width: '30px',
 //     height: '30px',
 //     borderRadius: '50%',
-//     backgroundColor: '#ff8c00',
+//     backgroundColor: '#ff69b4',
 //     marginLeft: '10px',
 //   },
 //   botIcon: {
 //     width: '30px',
 //     height: '30px',
 //     borderRadius: '50%',
-//     backgroundColor: '#ff8c00',
+//     backgroundColor: '#ff69b4',
 //     marginRight: '10px',
 //     display: 'flex',
 //     justifyContent: 'center',
@@ -720,7 +720,7 @@ const Chatbot = () => {
               style={styles.voiceButton}
               onClick={handleVoiceRecognition}
             >
-              <FaMicrophone size={16} color="#ff8c00" />
+              <FaMicrophone size={16} color="#ff69b4" />
             </button>
             
             <input
@@ -737,7 +737,7 @@ const Chatbot = () => {
               style={styles.sendButton}
               onClick={() => handleSendMessage()}
             >
-              <IoSend size={16} color="#ff8c00" />
+              <IoSend size={16} color="#ff69b4" />
             </button>
           </div>
         </div>
@@ -758,7 +758,7 @@ const styles = {
     zIndex: 1000,
   },
   chatbotIcon: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: '#fff',
     padding: '15px',
     borderRadius: '50%',
@@ -775,7 +775,7 @@ const styles = {
     width: '350px',
     height: '500px',
     marginBottom: '10px',
-    border: '2px solid #ff8c00',
+    border: '2px solid #ff69b4',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -786,13 +786,13 @@ const styles = {
     right: '10px',
     backgroundColor: 'transparent',
     border: 'none',
-    color: '#ff8c00',
+    color: '#ff69b4',
     fontSize: '20px',
     cursor: 'pointer',
     zIndex: 10,
   },
   chatHeader: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     padding: '15px',
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
@@ -840,14 +840,14 @@ const styles = {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     marginLeft: '10px',
   },
   botIcon: {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     marginRight: '10px',
     display: 'flex',
     justifyContent: 'center',

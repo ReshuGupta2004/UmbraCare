@@ -1,7 +1,7 @@
 // client/src/Notifications.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import SideNavbar from './sidenavbar/sidenav';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState('');
@@ -59,6 +59,7 @@ const Notifications = () => {
 
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.notificationsContainer}>
         <h2 style={styles.heading}>Notifications</h2>
         {error && <p style={styles.error}>{error}</p>}
@@ -71,7 +72,7 @@ const Notifications = () => {
               <li key={notification._id} style={{
                 ...styles.notificationItem,
                 backgroundColor: notification.isRead ? '#f0f0f0' : '#f9f9f9',
-                borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #ff8c00'
+                borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #ff69b4'
               }}>
                 <strong>{notification.type === 'medication_reminder' ? 'Medication Reminder' : 'Appointment Reminder'}:</strong> {notification.message}
                 <br />
@@ -104,6 +105,7 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
+    backgroundColor: '#ff69b4',
   },
   notificationsContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -111,13 +113,15 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
-    width: '100%',
-    maxWidth: '600px',
+    border: '2px solid #ff69b4',
+    width: 'calc(100% - 250px)', 
+    marginLeft: '250px', 
+    transition: 'width 0.3s ease, margin-left 0.3s ease',  
+    maxWidth: '1000px',
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -153,7 +157,7 @@ const styles = {
     justifyContent: 'flex-end',
   },
   markReadButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '5px 10px',

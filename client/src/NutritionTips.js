@@ -92,7 +92,7 @@ const styles = {
   },
   mainHeading: {
     fontSize: '36px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     textAlign: 'center',
     marginBottom: '30px',
     fontWeight: '600',
@@ -109,7 +109,7 @@ const styles = {
   },
   sectionTitle: {
     fontSize: '24px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '15px',
     fontWeight: '600',
   },
@@ -129,7 +129,7 @@ const styles = {
   },
   signature: {
     fontSize: '16px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     textAlign: 'center',
     marginTop: '30px',
     lineHeight: '1.5',
@@ -141,7 +141,7 @@ const styles = {
     marginTop: '40px',
   },
   backButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: 'white',
     border: 'none',
     padding: '12px 20px',

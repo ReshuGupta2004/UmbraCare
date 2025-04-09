@@ -1,6 +1,7 @@
 // client/src/Profile.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SideNavbar from './sidenavbar/sidenav';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -15,28 +16,27 @@ const Profile = () => {
   const [success, setSuccess] = useState('');
 
   // Fetch user profile on component mount
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found. Please log in again.');
+      const response = await axios.get('http://localhost:5000/api/users/me', {
+        headers: { 'x-auth-token': token },
+      });
+      setUser(response.data);
+      setFormData({
+        name: response.data.name || '',
+        email: response.data.email || '',
+        medicalHistory: response.data.medicalHistory || '',
+        menstrualHistory: response.data.menstrualHistory || '',
+      });
+    } catch (err) {
+      console.error('Error fetching user profile:', err.response?.data || err.message);
+      setError(`Error fetching profile: ${err.response?.data?.msg || err.message}`);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found. Please log in again.');
-
-        const response = await axios.get('http://localhost:5000/api/users/me', {
-          headers: { 'x-auth-token': token },
-        });
-        setUser(response.data);
-        setFormData({
-          name: response.data.name || '',
-          email: response.data.email || '',
-          medicalHistory: response.data.medicalHistory || '',
-          menstrualHistory: response.data.menstrualHistory || '',
-        });
-      } catch (err) {
-        console.error('Error fetching user profile:', err.response?.data || err.message);
-        setError(`Error fetching profile: ${err.response?.data?.msg || err.message}`);
-      }
-    };
-
     fetchUserProfile();
   }, []);
 
@@ -80,6 +80,7 @@ const Profile = () => {
 
   return (
     <div style={styles.container}>
+      <SideNavbar />
       <div style={styles.profileContainer}>
         <h2 style={styles.heading}>User Profile</h2>
         {error && <p style={styles.error}>{error}</p>}
@@ -199,6 +200,7 @@ const styles = {
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
     paddingTop: '80px', // To account for the fixed navbar
+    backgroundColor: '#ff69b4',
   },
   profileContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -206,13 +208,15 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
-    width: '100%',
-    maxWidth: '600px',
+    border: '2px solid #ff69b4',
+    width: 'calc(100% - 250px)', 
+    marginLeft: '250px', 
+    transition: 'width 0.3s ease, margin-left 0.3s ease',  
+    maxWidth: '1000px',
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#ff69b4',
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -273,7 +277,7 @@ const styles = {
     backgroundColor: '#f9f9f9', // Light gray background to indicate read-only
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#ff69b4',
     color: '#fff',
     padding: '10px 20px',
     fontSize: '16px',
