@@ -52,10 +52,9 @@ const App = () => {
               <Route path="/about" element={isLoggedIn ? <AboutUs /> : <Navigate to="/" />} />
               <Route path="/doctor-info" element={isLoggedIn ? <DoctorInfo /> : <Navigate to="/" />} />
               <Route path="/newsletter" element={isLoggedIn ? <Newsletter /> : <Navigate to="/" />} />
-
               <Route path="/fertility-treatments" element={isLoggedIn ? <FertilityTreatments /> : <Navigate to="/" />} />
               <Route path="/newsletter/nutrition-tips" element={isLoggedIn ? <NutritionTips /> : <Navigate to="/" />} />
-              <Route path="/newsletter/menstrual-cycle" element={isLoggedIn ? <MenstrualCycle /> : <Navigate to="/" />} /> {/* Add this route */}
+              <Route path="/newsletter/menstrual-cycle" element={isLoggedIn ? <MenstrualCycle /> : <Navigate to="/" />} /> 
             </Routes>
             {isLoggedIn && <Chatbot />}
           </>
