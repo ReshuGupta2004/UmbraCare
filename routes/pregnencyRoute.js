@@ -74,7 +74,7 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'User not authorized' });
     }
 
-    await pregnancy.remove();
+    await pregnancy.deleteOne();
     res.json({ msg: 'Pregnancy record removed' });
   } catch (err) {
     console.error(err.message);
@@ -129,11 +129,11 @@ router.put('/:id', auth, async (req, res) => {
 
 
 // Get latest pregnancy record with all vital data
-router.get('/latest', auth, async (req, res) => {
+router.get('/latest/:id', auth, async (req, res) => {
   try {
    
     const latestPregnancy = await Pregnancy.findOne({ 
-      user: req.user.id 
+      user: req.params.id 
     }).sort({ date: -1 });
     
     if (!latestPregnancy) {
@@ -142,13 +142,15 @@ router.get('/latest', auth, async (req, res) => {
 
     // Get all records with the same week as the latest record
     const sameWeekRecords = await Pregnancy.find({
-      user: req.user.id,
-      week: latestPregnancy.week
+      user: req.params.id,
+      week: latestPregnancy.week,
+      riskFactor: latestPregnancy.riskFactor
     }).sort({ date: -1 });
 
     // Extract all vital data from the records
     const vitalData = {
       week: latestPregnancy.week,
+      riskFactor: latestPregnancy.riskFactor, // Added riskFactor to the response
       heartRates: sameWeekRecords.map(record => ({
         value: record.heartRate,
         date: record.date
@@ -161,7 +163,11 @@ router.get('/latest', auth, async (req, res) => {
         systolic: record.systolicBP,
         diastolic: record.diastolicBP,
         date: record.date
-      }))
+      })),
+      pregnancyData: { // Added pregnancy data based on the context
+        week: latestPregnancy.week,
+        insights: latestPregnancy.insights
+      }
     };
 
     res.json(vitalData);
@@ -170,6 +176,58 @@ router.get('/latest', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+router.get('/allparameter/:id', auth, async(req, res) => {
+  try {
+    const pregnancies = await Pregnancy.find({ user: req.params.id }).sort({ date: -1 });
+    
+    // Extract heart rate, blood sugar, and blood pressure data
+    const vitalData = pregnancies.map(record => ({
+      date: record.date,
+      heartRate: record.heartRate,
+      bloodSugar: record.bloodSugar,
+      bloodPressure: {
+        systolic: record.systolicBP,
+        diastolic: record.diastolicBP
+      }
+    }));
+    
+    // Calculate lowest and highest values
+    const heartRates = pregnancies.map(record => record.heartRate).filter(Boolean);
+    const bloodSugars = pregnancies.map(record => record.bloodSugar).filter(Boolean);
+    const systolicBPs = pregnancies.map(record => record.systolicBP).filter(Boolean);
+    const diastolicBPs = pregnancies.map(record => record.diastolicBP).filter(Boolean);
+    
+    const stats = {
+      heartRate: {
+        lowest: heartRates.length > 0 ? Math.min(...heartRates) : null,
+        highest: heartRates.length > 0 ? Math.max(...heartRates) : null
+      },
+      bloodSugar: {
+        lowest: bloodSugars.length > 0 ? Math.min(...bloodSugars) : null,
+        highest: bloodSugars.length > 0 ? Math.max(...bloodSugars) : null
+      },
+      bloodPressure: {
+        systolic: {
+          lowest: systolicBPs.length > 0 ? Math.min(...systolicBPs) : null,
+          highest: systolicBPs.length > 0 ? Math.max(...systolicBPs) : null
+        },
+        diastolic: {
+          lowest: diastolicBPs.length > 0 ? Math.min(...diastolicBPs) : null,
+          highest: diastolicBPs.length > 0 ? Math.max(...diastolicBPs) : null
+        }
+      }
+    };
+    
+    res.json({
+      vitalData,
+      stats
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+})
 
 
 

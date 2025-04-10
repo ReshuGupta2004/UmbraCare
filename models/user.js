@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  useFor: {
+    type: String,
+    enum: ["pregnancy", "period"],
+    default: "period",
+  },
   isSubscribed: {
     type: Boolean,
     default: false,

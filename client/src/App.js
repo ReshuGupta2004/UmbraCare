@@ -19,7 +19,8 @@ import FertilityTreatments from './FertilityTreatments';
 import NutritionTips from './NutritionTips';
 import MenstrualCycle from './MenstrualCycle'; // Add this import
 // import FertilityTreatments from './FertilityTreatments';
-
+import Feedback from './feedback';
+import axios from 'axios';
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
   const [showSplash, setShowSplash] = useState(true);
@@ -30,6 +31,17 @@ const App = () => {
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const checkUseFor = async () => {
+      const response = await axios.get('http://localhost:5000/api/users/useFor', {
+        headers: { 'x-auth-token': localStorage.getItem('token') }
+      });
+      console.log(response.data);
+      localStorage.setItem('useFor', response.data);
+    };
+    checkUseFor();
+  }, [isLoggedIn]);
 
   return (
     <Router>
@@ -55,6 +67,7 @@ const App = () => {
               <Route path="/fertility-treatments" element={isLoggedIn ? <FertilityTreatments /> : <Navigate to="/" />} />
               <Route path="/newsletter/nutrition-tips" element={isLoggedIn ? <NutritionTips /> : <Navigate to="/" />} />
               <Route path="/newsletter/menstrual-cycle" element={isLoggedIn ? <MenstrualCycle /> : <Navigate to="/" />} /> 
+              <Route path="/feedback" element={isLoggedIn ? <Feedback /> : <Navigate to="/" />} />
             </Routes>
             {isLoggedIn && <Chatbot />}
           </>
@@ -67,10 +80,7 @@ const App = () => {
 const styles = {
   appContainer: {
     minHeight: '100vh',
-    backgroundImage: `url('/background.jpg')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+ 
     position: 'relative',
   },
 };

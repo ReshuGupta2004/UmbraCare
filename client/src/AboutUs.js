@@ -1,9 +1,11 @@
-// client/src/AboutUs.js
+ 
+
 import React from 'react';
 
 const AboutUs = () => {
   return (
     <div style={styles.container}>
+      <div style={styles.overlay}></div> {/* Overlay as a separate div */}
       <div style={styles.infoContainer}>
         <h2 style={styles.heading}>About Us</h2>
         <h3 style={styles.subHeading}>PREDICT. PLAN. PROSPER - SMARTER WOMEN'S HEALTH 🌿</h3>
@@ -88,40 +90,57 @@ const styles = {
     alignItems: 'center',
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
-    boxSizing: 'border-box',
-    paddingTop: '90px', // To account for the fixed navbar (updated to 90px as per previous changes)
+    padding: '20px', // Matches Newsletter
+    paddingTop: '90px', // Matches Newsletter for navbar
+    backgroundImage: 'url(/background.jpg)', // Same as Newsletter
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+    zIndex: 1,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  
+    zIndex: -1,
   },
   infoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: '40px',
+    width: '100%',
+    maxWidth: '1000px', // Slightly smaller than Newsletter's 1200px, but consistent with AboutUs intent
+    padding: '40px', // Matches original padding
+    
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    position: 'relative',
+    zIndex: 2,
+    // border: '2px solid #b15870',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
-    width: '100%',
-    maxWidth: '1000px', // Increased from 800px to 1000px
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '20px',
     fontWeight: '600',
   },
   subHeading: {
     fontSize: '20px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '15px',
     fontWeight: '500',
   },
   info: {
     fontSize: '16px',
-    color: '#333',
+    color: '#000000',
     marginBottom: '15px',
     lineHeight: '1.5',
   },
   tagline: {
     fontSize: '18px',
-    color: '#ff8c00',
+    color: '#B85170',
     fontWeight: '500',
     marginTop: '20px',
   },
@@ -131,7 +150,7 @@ const styles = {
   },
   featureTitle: {
     fontSize: '18px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '10px',
     fontWeight: '500',
   },
@@ -139,6 +158,7 @@ const styles = {
     listStyleType: 'disc',
     paddingLeft: '20px',
     marginBottom: '20px',
+    color: '#000000',
   },
 };
 

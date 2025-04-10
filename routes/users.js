@@ -100,4 +100,26 @@ router.put('/me', auth, async (req, res) => {
   }
 });
 
+router.put('/useFor', auth, async (req, res) => {
+  const { useFor } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    user.useFor = useFor;
+    await user.save();
+    console.log('Use for updated:', user);
+    res.json(user);
+  } catch (err) {
+    console.error('Error updating use for:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+router.get('/useFor', auth, async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(404).json({ msg: 'User not found' });
+  res.json(user.useFor);
+});
+
+
 module.exports = router;

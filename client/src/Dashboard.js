@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBaby, FaCalendarAlt, FaFlask, FaUserMd } from 'react-icons/fa';
 import Plot from 'react-plotly.js';
 import Plotly from 'plotly.js-dist-min';
 import axios from 'axios';
+// Remove framer-motion import since it's causing context errors
+import { FaCheck, FaPlus } from 'react-icons/fa'; // Add these to your existing Fa imports
+import * as d3 from 'd3';
 
 function list(start, end) {
   return Array.from({length: end - start + 1}, (v, k) => k + start);
 }
-
 
 const cycleData = {
   daysUntilPeriod: 6,
@@ -19,12 +21,11 @@ const cycleData = {
   }
 };
 
-
 // Function to fetch period prediction data from the backend
 const fetchPredictionData = async () => {
   try {
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+    const userId = localStorage.getItem('userId');
     const response = await axios.get(`http://localhost:5000/api/period-tracker/prediction/${userId}`, {
       headers: {
         'x-auth-token': token
@@ -49,8 +50,6 @@ const calculateDaysUntilPeriod = (nextPeriodStart) => {
   return diffDays > 0 ? diffDays : 0;
 };
 
-
-
 // Function to format prediction dates
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -62,17 +61,14 @@ const formatDate = (dateString) => {
 
 // Function to organize cycle length data by month and year
 const organizeCycleLengthData = (cycleLengths) => {
-  // This is a simplified version - in a real app, you would map actual dates to months
   const currentYear = new Date().getFullYear();
   const lastYear = currentYear - 1;
   
-  // Create placeholder data
   const result = {
     [lastYear.toString()]: [],
     [currentYear.toString()]: []
   };
   
-  // Split the data between years (simplified approach)
   if (cycleLengths && cycleLengths.length > 0) {
     const midpoint = Math.floor(cycleLengths.length / 2);
     result[lastYear.toString()] = cycleLengths.slice(0, midpoint);
@@ -80,6 +76,35 @@ const organizeCycleLengthData = (cycleLengths) => {
   }
   
   return result;
+};
+
+// function for risk factor and insights and Pregnancy Journey
+
+
+const getRiskFactor = async () => {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  const response = await axios.get(`http://localhost:5000/api/pregnancy/latest/${userId}`, {
+    headers: {
+      'x-auth-token': token
+    }
+  });
+  console.log(response.data);
+  return response.data;
+};
+
+//heart rate and blood pressure and blood sugar
+
+const allParameter = async () => {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  const response = await axios.get(`http://localhost:5000/api/pregnancy/allparameter/${userId}`, {
+    headers: {
+      'x-auth-token': token
+    }
+  });
+  console.log(response.data);
+  return response.data;
 };
 
 
@@ -116,15 +141,54 @@ const Dashboard = () => {
   const [predictionData, setPredictionData] = useState(null);
   const [daysUntilPeriod, setDaysUntilPeriod] = useState(cycleData.daysUntilPeriod);
   const [cycleHistory, setCycleHistory] = useState(cycleData.history);
+  const svgRef = useRef();
+  const [currentWeek, setCurrentWeek] = useState(12);
+  const [riskFactor, setRiskFactor] = useState(null);
+  const [healthData, setHealthData] = useState([]);
+  const [week, setWeek] = useState(null);
+  const [pregnancyData, setPregnancyData] = useState(null);
+  const [pregnancyInsights, setPregnancyInsights] = useState(null);
+
+  // Function to process health data for graphs
+  const processHealthData = (data) => {
+    if (!data || !data.vitalData || !Array.isArray(data.vitalData)) return null;
+    
+    // Sort data by date
+    const sortedData = [...data.vitalData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Get last 7 entries
+    const last7Entries = sortedData.slice(-7);
+    
+    // Format data for graphs
+    return {
+      dates: last7Entries.map(entry => new Date(entry.date).toLocaleDateString('en-US', { weekday: 'short' })),
+      heartRates: last7Entries.map(entry => entry.heartRate),
+      bloodSugars: last7Entries.map(entry => entry.bloodSugar),
+      bloodPressures: last7Entries.map(entry => entry.bloodPressure.systolic),
+      diastolicPressures: last7Entries.map(entry => entry.bloodPressure.diastolic),
+      stats: data.stats || {
+        heartRate: { lowest: 43, highest: 80 },
+        bloodSugar: { lowest: 44, highest: 90 },
+        bloodPressure: {
+          systolic: { lowest: 123, highest: 444 },
+          diastolic: { lowest: 44, highest: 90 }
+        }
+      }
+    };
+  };
 
   useEffect(() => {
     setIsVisible(true);
-
-    // console.log(predictionData?.prediction?.currentDayOfCycle)
     
-    // Fetch prediction data when component mounts
     const getPredictionData = async () => {
       const data = await fetchPredictionData();
+      const riskFactor = await getRiskFactor();
+      const allParameters = await allParameter();
+      
+      if (allParameters) {
+        setHealthData(processHealthData(allParameters));
+      }
+      
       if (data) {
         setPredictionData(data);
         const daysUntil = calculateDaysUntilPeriod(data.prediction.nextPeriodStart);
@@ -132,23 +196,150 @@ const Dashboard = () => {
           setDaysUntilPeriod(daysUntil);
         }
         
-        // Update cycle history if available in the response
         if (data.cycleLengths) {
           const organizedData = organizeCycleLengthData(data.cycleLengths);
           setCycleHistory(organizedData);
         }
       }
+      if (riskFactor) {
+        setRiskFactor(riskFactor);
+        setWeek(riskFactor.week);
+        
+        if (riskFactor.riskFactor) {
+          setPregnancyData(riskFactor.riskFactor);
+        }
+        if (riskFactor.pregnancyData.insights) {
+          setPregnancyInsights(riskFactor.pregnancyData.insights);
+        }
+      }
     };
     
     getPredictionData();
+
+ // D3 Pregnancy Progress Graph
+ const width = 350;
+ const height = 250;
+ const radius = 80; // Smaller radius to create more space
+ const progress = currentWeek / 40;
+ 
+ const svg = d3.select(svgRef.current);
+ svg.selectAll("*").remove();
+ 
+   const g = svg.append("g")
+   .attr("transform", `translate(${width/2}, ${height/2})`);
+ 
+ // Background circles - more subtle
+ g.append("circle")
+   .attr("r", radius + 25)
+   .attr("fill", "rgba(255, 140, 0, 0.03)")
+   .attr("stroke", "rgba(255, 140, 0, 0.08)")
+   .attr("stroke-width", 1);
+ 
+ // Background ring - lighter color
+ g.append("path")
+   .datum({ endAngle: 2 * Math.PI })
+   .attr("d", d3.arc()
+     .innerRadius(radius - 15)
+     .outerRadius(radius)
+     .startAngle(0))
+   .attr("fill", "#FFF5E6")
+   .attr("stroke", "#FFD4A3")
+   .attr("stroke-width", 1);
+ 
+ // Gradient for progress arc
+ const gradient = svg.append("defs")
+   .append("linearGradient")
+   .attr("id", "progress-gradient")
+   .attr("x1", "0%").attr("y1", "0%")
+   .attr("x2", "100%").attr("y2", "100%");
+ 
+ gradient.append("stop")
+   .attr("offset", "0%")
+   .attr("stop-color", "#FF9E40");
+ 
+ gradient.append("stop")
+   .attr("offset", "100%")
+   .attr("stop-color", "#FF6B00");
+ 
+ // Progress arc - thicker
+ g.append("path")
+   .datum({ endAngle: 2 * Math.PI * progress })
+   .attr("d", d3.arc()
+     .innerRadius(radius - 15)
+     .outerRadius(radius)
+     .startAngle(0))
+   .attr("fill", "url(#progress-gradient)")
+   .attr("stroke", "#FF4500")
+   .attr("stroke-width", 1.5);
+ 
+ // Trimester markers - moved outward and styled
+ const trimesterAngles = [0, 2*Math.PI/3, 4*Math.PI/3];
+ trimesterAngles.forEach((angle, i) => {
+   g.append("line")
+     .attr("x1", (radius - 10) * Math.cos(angle))
+     .attr("y1", (radius - 10) * Math.sin(angle))
+     .attr("x2", (radius + 20) * Math.cos(angle))
+     .attr("y2", (radius + 20) * Math.sin(angle))
+     .attr("stroke", "#FF8C00")
+     .attr("stroke-width", 1)
+     .attr("stroke-dasharray", "4,2")
+     .attr("opacity", 0.7);
+   
+   // Trimester labels - moved further out
+   g.append("text")
+     .attr("x", (radius + 35) * Math.cos(angle))
+     .attr("y", (radius + 35) * Math.sin(angle))
+     .attr("text-anchor", "middle")
+     .attr("dy", "0.35em")
+     .style("font-size", "11px")
+     .style("fill", "#FF8C00")
+     .style("font-weight", "600")
+     .style("opacity", 0.9)
+     .text(`Trimester ${i+1}`);
+ });
+ 
+ // Developmental stage text - moved down
+ g.append("text")
+   .attr("text-anchor", "middle")
+   .attr("dy", "40") // Increased from 30
+   .style("font-size", "13px")
+   .style("fill", "#FF6B00")
+   .style("font-weight", "bold")
+   .style("text-shadow", "0 1px 2px rgba(255,255,255,0.8)")
+   .text(() => {
+     if (currentWeek <= 4) return "Zygote Stage";
+     if (currentWeek <= 8) return "Embryonic Stage";
+     if (currentWeek <= 12) return "Fetal Stage";
+     if (currentWeek <= 16) return "Developing Features";
+     if (currentWeek <= 20) return "Movement Begins";
+     if (currentWeek <= 24) return "Viable if Born";
+     if (currentWeek <= 28) return "Third Trimester";
+     if (currentWeek <= 32) return "Rapid Growth";
+     if (currentWeek <= 36) return "Final Preparations";
+     return "Full Term";
+   });
+  // ===== END OF NEW SECTION =====
   }, []);
 
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <h1 style={styles.mainHeading}>Welcome to Umbracare</h1>
-        <p style={styles.subHeading}>PREDICT.PLAN.PROSPER - SMARTER WOMEN'S HEALTH</p>
+        {/* <h1 style={styles.mainHeading}>Welcome to Umbracare</h1>
+        <p style={styles.subHeading}>PREDICT.PLAN.PROSPER - SMARTER WOMEN'S HEALTH</p> */}
         
+    
+        <div 
+          style={{
+            ...styles.headerContainer,
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(-20px)',
+            transition: 'opacity 0.6s, transform 0.6s'
+          }}
+        >
+          <h1 style={styles.mainHeading}>Welcome to Umbracare</h1>
+          <p style={styles.subHeading}>Your personalized women's health companion</p>
+          <div style={styles.divider}></div>
+        </div> 
         {/* First Row: 3 Charts */}
         <div style={styles.graphRow}>
           {/* Cycle Length Analysis */}
@@ -165,7 +356,7 @@ const Dashboard = () => {
                       x: Object.keys(cycleHistory['2024']),
                       y: cycleHistory['2024'].map((val, i) => isVisible ? val : 20),
                       name: '2024',
-                      line: { color: '#FFAA80', width: 2, shape: 'spline', smoothing: 1.3 },
+                      line: { color: '#B85170', width: 2, shape: 'spline', smoothing: 1.3 }, // Changed to secondary color
                       marker: { size: 6 }
                     },
                     {
@@ -173,7 +364,7 @@ const Dashboard = () => {
                       x: Object.keys(cycleHistory['2025']),
                       y: cycleHistory['2025'].map((val, i) => isVisible ? val : 20),
                       name: '2025',
-                      line: { color: '#FF8C00', width: 3, shape: 'spline', smoothing: 1.3 },
+                      line: { color: '#B85170', width: 3, shape: 'spline', smoothing: 1.3 }, // Changed to primary color
                       marker: { size: 8 }
                     }
                   ]}
@@ -184,7 +375,7 @@ const Dashboard = () => {
                     yaxis: { title: 'Days', range: [20, 35], gridcolor: '#f5f5f5', titlefont: { size: 10 } },
                     xaxis: { title: 'Month', titlefont: { size: 10 }, automargin: true },
                     legend: { orientation: 'h', y: -0.3, font: { size: 10 } },
-                    plot_bgcolor: '#FFFBF8',
+                    plot_bgcolor: '#FFF5F5', // Adjusted to light pink background
                     paper_bgcolor: 'rgba(0,0,0,0)',
                     transition: { duration: 800, easing: 'cubic-out' }
                   }}
@@ -226,18 +417,18 @@ const Dashboard = () => {
                     type: 'indicator',
                     mode: 'number+gauge+delta',
                     value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0,
-                    delta: { reference: 30, decreasing: { color: '#FF8C00' }, font: { size: 12 } },
-                    number: { font: { size: 22, color: '#FF8C00' }, suffix: ' days' },
+                    delta: { reference: 30, decreasing: { color: '#B85170' }, font: { size: 12 } }, // Changed to primary color
+                    number: { font: { size: 22, color: '#B85170' }, suffix: ' days' }, // Changed to primary color
                     gauge: {
                       axis: { range: [0, 30], tickfont: { size: 10 } },
-                      bar: { color: '#FF8C00', thickness: 0.2, line: { color: isVisible ? '#FF8C00' : 'transparent', width: 2 } },
-                      bgcolor: '#FFFBF8',
+                      bar: { color: '#B85170', thickness: 0.2, line: { color: isVisible ? '#B85170' : 'transparent', width: 2 } }, // Changed to primary color
+                      bgcolor: '#FFF5F5', // Adjusted to light pink
                       steps: [
-                        { range: [0, 10], color: '#FFF5EB' },
-                        { range: [10, 20], color: '#FFE4C4' },
-                        { range: [20, 30], color: '#FFD4A3' }
+                        { range: [0, 10], color: '#FFF5F5' }, // Light pink
+                        { range: [10, 20], color: '#FFD9E1' }, // Slightly darker pink
+                        { range: [20, 30], color: '#B85170' } // Secondary color
                       ],
-                      threshold: { line: { color: 'red', width: 2 }, thickness: 0.2, value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0 }
+                      threshold: { line: { color: '#B85170', width: 2 }, thickness: 0.2, value: isVisible ? daysUntilPeriod : predictionData?.prediction?.daysUntilNextPeriod || 0 } // Changed to secondary color
                     }
                   }]}
                   layout={{
@@ -288,8 +479,8 @@ const Dashboard = () => {
                   labels: ["Cycle", "Menstrual", "Follicular", "Ovulation", "Luteal", "Day 1-5", "Day 6-11", "Day 12-15", "Day 15-17", "Day 18-28"],
                   parents: ["", "Cycle", "Cycle", "Cycle", "Cycle", "Menstrual", "Follicular", "Follicular", "Ovulation", "Luteal"],
                   marker: {
-                    colors: ['#FFF5EB', '#FFC299', '#FFD4A3', '#FFAA80', '#FF8C00', '#FFE0CC', '#FFE4C4', '#FFD4A3', '#FFAA80', '#FF8C00'],
-                    line: { width: 1, color: '#FF8C00' }
+                    colors: ['#FFF5F5', '#B85170', '#FFD9E1', '#FFCAD3', '#B85170', '#FFE6EB', '#FFD9E1', '#FFCAD3', '#B85170', '#B85170'], // Adjusted to pink shades
+                    line: { width: 1, color: '#B85170' } // Changed to primary color
                   },
                   branchvalues: 'total',
                   textinfo: 'label',
@@ -311,7 +502,7 @@ const Dashboard = () => {
                     font: {
                       family: 'Poppins',
                       size: 14,
-                      color: '#FF8C00',
+                      color: '#B85170', // Changed to primary color
                       weight: 'bold'
                     }
                   }] : []
@@ -334,169 +525,391 @@ const Dashboard = () => {
           <div style={styles.cardContainer}>
             <div style={styles.cardHeader}>
               <h3 style={styles.cardTitle}>Pregnancy Journey</h3>
+            </div>     
+
+            
+            <div style={styles.graphCard}>
+              <div style={{...styles.graphCard, textAlign: 'center', position: 'relative'}}>
+                <svg 
+                  ref={svgRef} 
+                  width={350} 
+                  height={250}
+                  style={{ display: 'block', margin: '0 auto' }}
+                ></svg>
+                
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: `${15 + (currentWeek * 1.2)}px`,
+                  height: `${15 + (currentWeek * 1.2)}px`,
+                  backgroundImage: 'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkY4QzAwIiBkPSJNMjU2IDQ0OGMtMTA2IDAtMTkyLTg2LTE5Mi0xOTJTMTUwIDY0IDI1NiA2NHMxOTIgODYgMTkyIDE5Mi04NiAxOTItMTkyIDE5MnpNMTI4IDI3MmMwLTM1LjMgMjguNy02NCA2NC02NHM2NCAyOC43IDY0IDY0LTI4LjcgNjQtNjQgNjQtNjQtMjguNy02NC02NHptMTI4IDBjMC0zNS4zIDI4LjctNjQgNjQtNjRzNjQgMjguNyA2NCA2NC0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjR6Ii8+PC9zdmc+")',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  opacity: 0.8,
+                  transition: 'all 0.5s ease',
+                  zIndex: 10
+                }}></div>
+                
+                <div style={{
+                  position: 'absolute',
+                  top: '20%',
+                  right: '10%',
+                  backgroundColor: 'white',
+                  color: '#FF8C00',
+                  borderRadius: '50%',
+                  width: '60px',
+                  height: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  fontSize: '22px',
+                  boxShadow: '0 4px 12px rgba(255, 140, 0, 0.3)',
+                  border: '3px solid #FF8C00',
+                  zIndex: 20
+                }}>
+                  {week}
+                </div>
+                
+                <p style={{ 
+                  marginTop: '15px',
+                  color: '#FF8C00',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  padding: '0 20px',
+                  position: 'relative',
+                  zIndex: 20,
+                  backgroundColor: 'rgba(255, 236, 219, 0.7)',
+                  borderRadius: '8px',
+                  margin: '15px auto 0',
+                  maxWidth: '90%'
+                }}>
+                   {pregnancyInsights}
+                </p>
+              </div>
+            </div>
+
+            
+          </div>
+
+          {/* Health Parameters Card */}
+          <div style={{ ...styles.cardContainer, flex: '1 1 45%', maxWidth: '750px' }}>
+            <div style={styles.cardHeader}>
+              <h3 style={styles.cardTitle}>Health Parameters</h3>
             </div>
             <div style={styles.graphCard}>
-              <Plot
-                data={[
-                  {
-                    type: 'indicator',
-                    mode: 'number+gauge+delta',
-                    value: 5,
-                    delta: { reference: 40, decreasing: { color: '#FF8C00' }, font: { size: 14 } },
-                    domain: { 'x': [0.05, 0.95], 'y': [0.88, 0.98] },
-                    title: { 'text': `<b style="font-size:18px;color:#FF8C00">5 Weeks Pregnant</b><br><span style="font-size:14px;color:#666">35 Weeks to Go</span>`, 'font': { 'family': 'Poppins' } },
-                    gauge: {
-                      'shape': "bullet",
-                      'axis': { 'range': [null, 40], 'visible': false },
-                      'bar': { 'color': "rgba(255, 140, 0, 0.8)", 'thickness': 0.25, 'line': { 'width': 1, 'color': 'darkorange' } },
-                      'bgcolor': "rgba(255, 140, 0, 0.1)",
-                      'steps': [{ 'range': [0, 5], 'color': "rgba(255, 140, 0, 0.6)" }],
-                      'threshold': { 'line': { 'color': "red", 'width': 2 }, 'thickness': 0.8, 'value': 5 }
-                    }
-                  },
-                  {
-                    type: 'indicator',
-                    mode: 'number',
-                    value: pregnancyData.sizes[4],
-                    number: { 'suffix': " inches", 'font': { 'size': 28, 'color': '#FF8C00', 'family': 'Poppins' } },
-                    domain: { 'x': [0.05, 0.45], 'y': [0.6, 0.8] },
-                    title: { 'text': "<b>Current Size</b>", 'font': { 'size': 14, 'family': 'Poppins' } }
-                  },
-                  {
-                    type: 'indicator',
-                    mode: 'number',
-                    value: 0,
-                    number: { 'prefix': `<span style="font-size:20px;color:#FF8C00">👶 Baby size like:<br><span style="font-size:24px;font-weight:bold">${pregnancyData.comparisons[4]}</span></span>` },
-                    domain: { 'x': [0.55, 0.95], 'y': [0.6, 0.8] }
-                  },
-                  {
-                    type: 'scatter',
-                    x: pregnancyData.weeks,
-                    y: pregnancyData.sizes,
-                    mode: 'lines+markers',
-                    line: { 'color': 'rgba(255, 140, 0, 0.7)', 'width': 4, 'shape': 'spline', 'smoothing': 1.2 },
-                    marker: {
-                      'size': pregnancyData.sizes.map(s => Math.max(8, s * 15)),
-                      'color': pregnancyData.sizes.map((s, i) => i === 4 ? '#FF8C00' : 'rgba(255, 140, 0, 0.5)'),
-                      'line': { 'width': 1, 'color': 'white' },
-                      'symbol': pregnancyData.weeks.map((w, i) => i === 4 ? 'diamond' : 'circle'),
-                      'opacity': 0.8
-                    },
-                    'hoverinfo': 'text',
-                    'text': pregnancyData.weeks.map((w, i) => `Week ${w}<br>Size: ${pregnancyData.sizes[i]}"<br>Like: ${pregnancyData.comparisons[i]}`),
-                    'hovertemplate': '%{text}<extra></extra>'
-                  },
-                  {
-                    type: 'scatter',
-                    x: [5],
-                    y: [pregnancyData.sizes[4]],
-                    mode: 'markers',
-                    marker: { 'size': 30, 'color': '#FF8C00', 'symbol': 'diamond', 'line': { 'width': 2, 'color': 'white' }, 'opacity': 0.9 },
-                    'hoverinfo': 'skip'
-                  }
-                ]}
-                layout={{
-                  width: 350,
-                  height: 250,
-                  margin: { 't': 50, 'b': 40, 'l': 40, 'r': 40, 'pad': 10 },
-                  plot_bgcolor: '#FFFBF8',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  font: { 'family': 'Poppins' },
-                  xaxis: { 'title': { 'text': '<b>Weeks</b>', 'font': { 'size': 12 } }, 'range': [0.5, 40.5], 'tickvals': Array.from({length: 9}, (_, i) => i * 5) },
-                  yaxis: { 'title': { 'text': '<b>Size (in)</b>', 'font': { 'size': 12 } }, 'range': [0, Math.max(...pregnancyData.sizes) * 1.15] },
-                  transition: { 'duration': 1500, 'easing': 'cubic-in-out' }
-                }}
-                config={{ displayModeBar: false, responsive: true, scrollZoom: false }}
-              />
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                height: '100%',
+                gap: '10px'
+              }}>
+                {/* Heart Rate */}
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRight: '1px solid #FFD4A3',
+                  padding: '0 5px'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#FF6B8B',
+                    marginBottom: '10px'
+                  }}>Heart Rate</div>
+                  <div style={{ width: '100%', height: '120px' }}>
+                    <Plot
+                      data={[{
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        x: healthData?.dates || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        y: healthData?.heartRates || [72, 85, 78, 90, 82, 76, 68],
+                        line: { 
+                          color: '#FF6B8B', 
+                          width: 2, 
+                          shape: 'spline',
+                          smoothing: 1.3 
+                        },
+                        marker: {
+                          size: 6,
+                          color: '#FF6B8B'
+                        },
+                        fill: 'tozeroy',
+                        fillcolor: 'rgba(255, 107, 139, 0.1)'
+                      }]}
+                      layout={{
+                        width: 120,
+                        height: 120,
+                        margin: { t: 10, l: 30, r: 10, b: 30 },
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 }
+                        },
+                        yaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 },
+                          range: [healthData?.stats?.heartRate?.lowest || 60, healthData?.stats?.heartRate?.highest || 100]
+                        },
+                        showlegend: false,
+                        hovermode: 'closest',
+                        hoverlabel: {
+                          bgcolor: '#FF6B8B',
+                          font: { color: 'white' }
+                        }
+                      }}
+                      config={{ displayModeBar: false }}
+                    />
+                  </div>
+                  <div style={{ textAlign: 'center', marginTop: '5px' }}>
+                    <div style={{ fontSize: '12px', color: '#666' }}>Lowest: {healthData?.stats?.heartRate?.lowest || 68} bpm</div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>Highest: {healthData?.stats?.heartRate?.highest || 90} bpm</div>
+                  </div>
+                </div>
+
+                {/* Blood Pressure */}
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRight: '1px solid #FFD4A3',
+                  padding: '0 5px'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#FFA500',
+                    marginBottom: '10px'
+                  }}>Blood Pressure</div>
+                  <div style={{ width: '100%', height: '120px' }}>
+                    <Plot
+                      data={[
+                        {
+                          type: 'scatter',
+                          mode: 'lines+markers',
+                          x: healthData?.dates || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                          y: healthData?.bloodPressures || [115, 125, 118, 130, 122, 120, 110],
+                          name: 'Systolic',
+                          line: { 
+                            color: '#FFA500', 
+                            width: 2, 
+                            shape: 'spline',
+                            smoothing: 1.3 
+                          },
+                          marker: {
+                            size: 6,
+                            color: '#FFA500'
+                          },
+                          fill: 'tozeroy',
+                          fillcolor: 'rgba(255, 165, 0, 0.1)'
+                        },
+                        {
+                          type: 'scatter',
+                          mode: 'lines+markers',
+                          x: healthData?.dates || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                          y: healthData?.diastolicPressures || [70, 75, 72, 80, 78, 75, 70],
+                          name: 'Diastolic',
+                          line: { 
+                            color: '#FF8C00', 
+                            width: 2, 
+                            shape: 'spline',
+                            smoothing: 1.3 
+                          },
+                          marker: {
+                            size: 6,
+                            color: '#FF8C00'
+                          },
+                          fill: 'tozeroy',
+                          fillcolor: 'rgba(255, 140, 0, 0.1)'
+                        }
+                      ]}
+                      layout={{
+                        width: 120,
+                        height: 120,
+                        margin: { t: 10, l: 30, r: 10, b: 30 },
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 }
+                        },
+                        yaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 },
+                          range: [
+                            Math.min(...(healthData?.diastolicPressures || [60])), 
+                            Math.max(...(healthData?.bloodPressures || [140]))
+                          ]
+                        },
+                        showlegend: false,
+                        hovermode: 'closest',
+                        hoverlabel: {
+                          bgcolor: '#FFA500',
+                          font: { color: 'white' }
+                        }
+                      }}
+                      config={{ displayModeBar: false }}
+                    />
+                  </div>
+                  <div style={{ textAlign: 'center', marginTop: '5px' }}>
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      Systolic: {healthData?.stats?.bloodPressure?.systolic?.lowest || 110} - {healthData?.stats?.bloodPressure?.systolic?.highest || 130} mmHg
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      Diastolic: {healthData?.stats?.bloodPressure?.diastolic?.lowest || 70} - {healthData?.stats?.bloodPressure?.diastolic?.highest || 90} mmHg
+                    </div>
+                  </div>
+                </div>
+
+                {/* Blood Sugar */}
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '0 5px'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#FF4500',
+                    marginBottom: '10px'
+                  }}>Blood Sugar</div>
+                  <div style={{ width: '100%', height: '120px' }}>
+                    <Plot
+                      data={[{
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        x: healthData?.dates || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        y: healthData?.bloodSugars || [90, 110, 95, 105, 100, 92, 88],
+                        line: { 
+                          color: '#FF4500', 
+                          width: 2, 
+                          shape: 'spline',
+                          smoothing: 1.3 
+                        },
+                        marker: {
+                          size: 6,
+                          color: '#FF4500'
+                        },
+                        fill: 'tozeroy',
+                        fillcolor: 'rgba(255, 69, 0, 0.1)'
+                      }]}
+                      layout={{
+                        width: 120,
+                        height: 120,
+                        margin: { t: 10, l: 30, r: 10, b: 30 },
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 }
+                        },
+                        yaxis: { 
+                          showgrid: false, 
+                          zeroline: false,
+                          tickfont: { size: 8 },
+                          range: [healthData?.stats?.bloodSugar?.lowest || 80, healthData?.stats?.bloodSugar?.highest || 120]
+                        },
+                        showlegend: false,
+                        hovermode: 'closest',
+                        hoverlabel: {
+                          bgcolor: '#FF4500',
+                          font: { color: 'white' }
+                        }
+                      }}
+                      config={{ displayModeBar: false }}
+                    />
+                  </div>
+                  <div style={{ textAlign: 'center', marginTop: '5px' }}>
+                    <div style={{ fontSize: '12px', color: '#666' }}>Lowest: {healthData?.stats?.bloodSugar?.lowest || 88} mg/dL</div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>Highest: {healthData?.stats?.bloodSugar?.highest || 110} mg/dL</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Pregnancy Vital Signs */}
+          {/* New Predicted Pregnancy Risk Card */}
+          <div className="image-container" style={{display: 'flex',gap: '50px', justifyContent: 'end', alignItems: 'center', maxWidth: '500px'}} >
+
           <div style={styles.cardContainer}>
             <div style={styles.cardHeader}>
-              <h3 style={styles.cardTitle}>❤️ Pregnancy Vital Signs</h3>
+              <h3 style={styles.cardTitle}>Predicted Pregnancy Risk</h3>
             </div>
-            <div style={styles.graphCard}>
-              <Plot
-                data={[
-                  {
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Heart Rate',
-                    x: ['Week 4', 'Week 8', 'Week 12', 'Week 16', 'Week 20', 'Week 24', 'Week 28', 'Week 32', 'Week 36', 'Week 40'],
-                    y: [72, 75, 78, 82, 85, 88, 90, 92, 94, 96],
-                    line: {color: '#FF6B8B', width: 3, shape: 'spline'},
-                    marker: {symbol: 'heart', size: 10}
-                  },
-                  {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'Blood Sugar',
-                    x: ['Week 4', 'Week 8', 'Week 12', 'Week 16', 'Week 20', 'Week 24', 'Week 28', 'Week 32', 'Week 36', 'Week 40'],
-                    y: [85, 88, 86, 90, 92, 95, 98, 96, 99, 101],
-                    yaxis: 'y2',
-                    line: {color: '#FFAA80', width: 3, dash: 'dot', shape: 'spline'},
-                    marker: {symbol: 'hexagram', size: 10}
-                  }
-                ]}
-                layout={{
-                  width: 350,
-                  height: 250,
-                  margin: {t: 40, b: 60, l: 50, r: 50},
-                  plot_bgcolor: '#FFFBF8',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  xaxis: { title: 'Pregnancy Timeline', gridcolor: 'rgba(255,140,0,0.1)' },
-                  yaxis: { title: 'Heart Rate (bpm)', range: [65, 110], gridcolor: 'rgba(255,140,0,0.1)', titlefont: {color: '#FF6B8B'} },
-                  yaxis2: { title: 'Blood Sugar (mg/dL)', overlaying: 'y', side: 'right', range: [75, 110], titlefont: {color: '#FFAA80'} }
-                }}
-                config={{displayModeBar: false}}
-              />
+            <div style={{...styles.graphCard, textAlign: 'center', padding: '20px'}}>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%'
+              }}>
+                {/* Risk Level Indicator */}
+                <div style={{
+                  width: '150px',
+                  height: '150px',
+                  borderRadius: '50%',
+                  backgroundColor:'#FF7E79', 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  marginBottom: '20px',
+                  boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)',
+                  border: '4px solid #FFB6C1'  
+                }}>
+                  {pregnancyData}
+                </div>
+                
+                {/* Last Prediction Info */}
+                <div style={{
+                  backgroundColor: '#FFF5EB',
+                  padding: '10px 15px',
+                  borderRadius: '8px',
+                  border: '1px solid #FFD4A3',
+                  width: '80%'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#FF8C00',
+                    fontWeight: '600'
+                  }}>
+                    Last prediction: Week {week}
+                  </div>
+                </div>
+                
+                {/* Additional Info */}
+                <div style={{
+                  marginTop: '20px',
+                  fontSize: '13px',
+                  color: '#666',
+                  lineHeight: '1.5',
+                  maxWidth: '80%'
+                }}>
+                  Based on your health parameters and history, your <strong>{pregnancyData}</strong>.
+                </div>
+              </div>
             </div>
           </div>
+            <div className="image-container" style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+              <img src="/uuu.jpg" alt="Pregnancy Risk" style={{ width: '750px', height: 'auto', borderRadius: '8px' }} />
+            </div>
 
-          {/* Pressure & Glucose */}
-          <div style={styles.cardContainer}>
-            <div style={styles.cardHeader}>
-              <h3 style={styles.cardTitle}>🩸 Pressure & Glucose</h3>
-            </div>
-            <div style={styles.graphCard}>
-              <Plot
-                data={[
-                  {
-                    type: 'candlestick',
-                    name: 'Blood Pressure',
-                    x: ['1st Tri', '2nd Tri', '3rd Tri'],
-                    open: [112, 115, 118],
-                    high: [122, 125, 128],
-                    low: [108, 112, 115],
-                    close: [118, 120, 124],
-                    increasing: {line: {color: '#FF8C00'}},
-                    decreasing: {line: {color: '#FF6B8B'}}
-                  },
-                  {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'Fasting Glucose',
-                    x: ['1st Tri', '2nd Tri', '3rd Tri'],
-                    y: [82, 88, 94],
-                    line: {color: '#6B8E23', width: 3, shape: 'spline'},
-                    marker: {symbol: 'star', size: 12, color: '#6B8E23'},
-                    yaxis: 'y2'
-                  }
-                ]}
-                layout={{
-                  width: 350,
-                  height: 250,
-                  margin: {t: 40, b: 60, l: 50, r: 50},
-                  plot_bgcolor: '#FFFBF8',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  xaxis: { title: 'Trimester', gridcolor: 'rgba(255,140,0,0.1)' },
-                  yaxis: { title: 'BP (mmHg)', gridcolor: 'rgba(255,140,0,0.1)' },
-                  yaxis2: { title: 'Glucose (mg/dL)', overlaying: 'y', side: 'right', titlefont: {color: '#6B8E23'} }
-                }}
-                config={{displayModeBar: false}}
-              />
-            </div>
           </div>
         </div>
 
@@ -536,6 +949,14 @@ const styles = {
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
     paddingTop: '50px',
+    backgroundImage: 'url(/background.jpg)', // Added from Newsletter
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+   
+    zIndex: 1,
+   
   },
   content: {
     padding: '40px',
@@ -547,10 +968,11 @@ const styles = {
     flexDirection: 'column',
     width: '100%',
     maxWidth: '1400px',
+   
   },
   mainHeading: {
     fontSize: '38px',
-    color: 'black',
+    color: '#B85170', // Changed to primary color
     marginBottom: '4px',
     fontWeight: '600',
     textAlign: 'center',
@@ -568,31 +990,31 @@ const styles = {
     gap: '20px',
     width: '100%',
     maxWidth: '1200px',
-    margin: '0 auto 30px',
+    margin: '0 0 30px',
     flexWrap: 'wrap',
     opacity: isVisible => isVisible ? 1 : 0,
     transform: isVisible => isVisible ? 'translateY(0)' : 'translateY(20px)',
     transition: 'all 0.6s ease-out'
   },
   cardContainer: {
-    flex: '1 1 30%',
+    flex: '1 1 31%',
     minWidth: '300px',
-    maxWidth: '400px',
-    border: '1px solid #FF8C00',
+    maxWidth: '700px',
+    border: '1px solid #B85170', // Changed to primary color
     borderRadius: '10px',
     overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(255,140,0,0.1)',
+    boxShadow: '0 4px 12px rgba(184,81,112,0.1)', // Adjusted shadow color
     willChange: 'transform, opacity',
-    backgroundColor: '#FFFBF8',
+    backgroundColor: '#FFF5F5', // Light pink background
     transform: isVisible => isVisible ? 'scale(1)' : 'scale(0.95)',
     transition: 'transform 0.4s ease-out 0.2s'
   },
   cardHeader: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#B85170', // Changed to primary color
     padding: '12px 15px',
-    color: 'white',
+    color: '#FFFFFF',
     textAlign: 'center',
-    borderBottom: '1px solid #FFD4A3'
+    borderBottom: '1px solid #B85170' // Changed to secondary color
   },
   cardTitle: {
     margin: 0,
@@ -615,17 +1037,17 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '15px',
-    borderTop: '1px dashed #FFD4A3',
+    borderTop: '1px dashed #B85170', // Changed to secondary color
     paddingTop: '15px'
   },
   metricColumn: {
     textAlign: 'center',
     padding: '8px 12px',
     borderRadius: '6px',
-    backgroundColor: '#FFF5EB',
+    backgroundColor: '#FFF5F5', // Light pink background
     flex: 1,
     margin: '0 5px',
-    border: '1px solid #FFD4A3',
+    border: '1px solid #B85170', // Changed to secondary color
     transition: 'all 0.3s ease'
   },
   metricHeader: {
@@ -637,23 +1059,23 @@ const styles = {
   metricValue: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#FF8C00'
+    color: '#B85170' // Changed to primary color
   },
   predictionGrid: {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '15px',
-    borderTop: '1px dashed #FFD4A3',
+    borderTop: '1px dashed #B85170', // Changed to secondary color
     paddingTop: '15px'
   },
   predictionColumn: {
     textAlign: 'center',
     padding: '8px 12px',
     borderRadius: '6px',
-    backgroundColor: '#FFF5EB',
+    backgroundColor: '#FFF5F5', // Light pink background
     flex: 1,
     margin: '0 5px',
-    border: '1px solid #FFD4A3',
+    border: '1px solid #B85170', // Changed to secondary color
     transition: 'all 0.3s ease'
   },
   predictionHeader: {
@@ -665,7 +1087,7 @@ const styles = {
   predictionDate: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#FF8C00'
+    color: '#B85170' // Changed to primary color
   },
   buttonGrid: {
     display: 'grid',
@@ -674,8 +1096,8 @@ const styles = {
     marginBottom: '30px'
   },
   gridButton: {
-    backgroundColor: '#ff8c00',
-    color: '#fff',
+    backgroundColor: '#B85170', // Changed to primary color
+    color: '#FFFFFF',
     padding: '15px',
     fontSize: '16px',
     border: 'none',
@@ -695,7 +1117,7 @@ const styles = {
     marginBottom: '15px',
   },
   newsletterBox: {
-    backgroundColor: 'rgb(255, 140, 0)',
+    backgroundColor: '#B85170', // Changed to primary color
     borderRadius: '8px',
     padding: '7px',
     height: '100%',
@@ -703,9 +1125,25 @@ const styles = {
     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
   },
   newsletterHeading: {
-    color: 'black',
+    color: '#FFFFFF', // Changed to white for contrast
     fontSize: '15px',
+  },
+  currentDayBadge: {
+    fontSize: '12px',
+    color: '#FFFFFF',
+    backgroundColor: '#B85170', // Changed to secondary color
+    padding: '2px 8px',
+    borderRadius: '12px',
+    marginLeft: '10px',
+    display: 'inline-block'
+  },
+  phaseIndicator: {
+    fontSize: '14px',
+    color: '#B85170', // Changed to primary color
+    fontWeight: '600',
+    marginTop: '10px'
   }
 };
 
 export default Dashboard;
+ 

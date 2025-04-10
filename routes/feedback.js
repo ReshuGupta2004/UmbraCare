@@ -24,7 +24,7 @@ router.post('/', auth, async (req, res) => {
 
 router.get('/', auth, async (req, res) => {
   try {
-    const feedbacks = await FeedbackForm.find({ user: req.user.id }).sort({ date: -1 });
+    const feedbacks = await FeedbackForm.find().sort({ date: -1 });
     res.json(feedbacks);
   } catch (err) {
     console.error(err.message);

@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
 import { FaCalendarAlt } from 'react-icons/fa';
-
+import { toast, Toaster } from 'react-hot-toast';
 const PregnancyPostpartumTracker = () => {
   const [mode, setMode] = useState('pregnancy');
   const [week, setWeek] = useState('');
@@ -14,13 +14,12 @@ const PregnancyPostpartumTracker = () => {
   const [bodyTemp, setBodyTemp] = useState('');
   const [heartRate, setHeartRate] = useState('');
 
-  // const [week, setWeek] = useState('');
   const [deliveryDate, setDeliveryDate] = useState(new Date());
   const [showDeliveryCalendar, setShowDeliveryCalendar] = useState(false);
   const [menopauseSymptoms, setMenopauseSymptoms] = useState('');
   const [medication, setMedication] = useState('');
   const [appointment, setAppointment] = useState('');
-  const [showAppointmentCalendar, setShowAppointmentCalendar] = useState(false); // State for appointment calendar
+  const [showAppointmentCalendar, setShowAppointmentCalendar] = useState(false);
   const [result, setResult] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [pregnancyRecords, setPregnancyRecords] = useState([]);
@@ -219,6 +218,7 @@ const PregnancyPostpartumTracker = () => {
       );
       setResult(`Medication Reminder: ${medication}\nNext Appointment: ${appointment}`);
       setShowPopup(true);
+      toast.success('Medication Reminder and Appointment Reminder set successfully!');
       setTimeout(() => setShowPopup(false), 3000);
     } catch (err) {
       console.error('Error saving data:', err.response?.data || err.message);
@@ -252,118 +252,109 @@ const PregnancyPostpartumTracker = () => {
       <div style={styles.trackerContainer}>
         <h2 style={styles.heading}>Pregnancy & Postpartum Tracker</h2>
         <div style={styles.toggleContainer}>
-          <button onClick={() => setMode('pregnancy')} style={{ ...styles.toggleButton, backgroundColor: mode === 'pregnancy' ? '#ff8c00' : '#ccc' }}>Pregnancy</button>
-          <button onClick={() => setMode('postpartum')} style={{ ...styles.toggleButton, backgroundColor: mode === 'postpartum' ? '#ff8c00' : '#ccc' }}>Postpartum</button>
-          <button onClick={() => setMode('medication')} style={{ ...styles.toggleButton, backgroundColor: mode === 'medication' ? '#ff8c00' : '#ccc' }}>Medication Reminder</button>
-          <button onClick={() => setMode('menopause')} style={{ ...styles.toggleButton, backgroundColor: mode === 'menopause' ? '#ff8c00' : '#ccc' }}>Menopause Insights</button>
+          <button onClick={() => setMode('pregnancy')} style={{ ...styles.toggleButton, backgroundColor: mode === 'pregnancy' ? '#B85170' : '#ccc' }}>Pregnancy</button>
+          <button onClick={() => setMode('postpartum')} style={{ ...styles.toggleButton, backgroundColor: mode === 'postpartum' ? '#B85170' : '#ccc' }}>Postpartum</button>
+          <button onClick={() => setMode('medication')} style={{ ...styles.toggleButton, backgroundColor: mode === 'medication' ? '#B85170' : '#ccc' }}>Medication Reminder</button>
+          <button onClick={() => setMode('menopause')} style={{ ...styles.toggleButton, backgroundColor: mode === 'menopause' ? '#B85170' : '#ccc' }}>Menopause Insights</button>
         </div>
 
-        {/* {mode === 'pregnancy' && (
+        {mode === 'pregnancy' && (
           <form onSubmit={handlePregnancySubmit} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Current Week of Pregnancy:</label>
-              <input type="number" value={week} onChange={(e) => setWeek(e.target.value)} style={styles.input} placeholder="e.g., 12" min="1" max="40" required />
+              <label style={styles.highlightedLabel}>Current Week of Pregnancy:</label>
+              <input
+                type="number"
+                value={week}
+                onChange={(e) => setWeek(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 12"
+                min="1"
+                max="40"
+                required
+              />
             </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Age:</label>
+              <input
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 28"
+                required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Systolic BP (mmHg):</label>
+              <input
+                type="number"
+                value={systolicBP}
+                onChange={(e) => setSystolicBP(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 120"
+                required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Diastolic BP (mmHg):</label>
+              <input
+                type="number"
+                value={diastolicBP}
+                onChange={(e) => setDiastolicBP(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 80"
+                required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Blood Sugar Level (mg/dL):</label>
+              <input
+                type="number"
+                value={bloodSugar}
+                onChange={(e) => setBloodSugar(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 90"
+                required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Body Temperature (°C):</label>
+              <input
+                type="number"
+                step="0.1"
+                value={bodyTemp}
+                onChange={(e) => setBodyTemp(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 36.6"
+                required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.highlightedLabel}>Heart Rate (bpm):</label>
+              <input
+                type="number"
+                value={heartRate}
+                onChange={(e) => setHeartRate(e.target.value)}
+                style={styles.input}
+                placeholder="e.g., 75"
+                required
+              />
+            </div>
+
             <button type="submit" style={styles.button}>Get Insights</button>
           </form>
-        )} */}
-        {mode === 'pregnancy' && (
-        <form onSubmit={handlePregnancySubmit} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Current Week of Pregnancy:</label>
-            <input
-              type="number"
-              value={week}
-              onChange={(e) => setWeek(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 12"
-              min="1"
-              max="40"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Age:</label>
-            <input
-              type="number"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 28"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Systolic BP (mmHg):</label>
-            <input
-              type="number"
-              value={systolicBP}
-              onChange={(e) => setSystolicBP(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 120"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Diastolic BP (mmHg):</label>
-            <input
-              type="number"
-              value={diastolicBP}
-              onChange={(e) => setDiastolicBP(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 80"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Blood Sugar Level (mg/dL):</label>
-            <input
-              type="number"
-              value={bloodSugar}
-              onChange={(e) => setBloodSugar(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 90"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Body Temperature (°C):</label>
-            <input
-              type="number"
-              step="0.1"
-              value={bodyTemp}
-              onChange={(e) => setBodyTemp(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 36.6"
-              required
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Heart Rate (bpm):</label>
-            <input
-              type="number"
-              value={heartRate}
-              onChange={(e) => setHeartRate(e.target.value)}
-              style={styles.input}
-              placeholder="e.g., 75"
-              required
-            />
-          </div>
-
-          <button type="submit" style={styles.button}>Get Insights</button>
-        </form>
         )}
 
         {mode === 'postpartum' && (
           <form onSubmit={handlePostpartumSubmit} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Delivery Date:</label>
+              <label style={styles.highlightedLabel}>Delivery Date:</label>
               <div style={styles.calendarInputContainer}>
                 <input
                   type="text"
@@ -388,11 +379,11 @@ const PregnancyPostpartumTracker = () => {
         {mode === 'medication' && (
           <form onSubmit={handleMedicationSubmit} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Medication Reminder:</label>
+              <label style={styles.highlightedLabel}>Medication Reminder:</label>
               <input type="text" value={medication} onChange={(e) => setMedication(e.target.value)} style={styles.input} placeholder="e.g., Take Follicle Stimulating Hormone at 8 AM" required />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Next Appointment:</label>
+              <label style={styles.highlightedLabel}>Next Appointment:</label>
               <div style={styles.calendarInputContainer}>
                 <input
                   type="text"
@@ -424,7 +415,7 @@ const PregnancyPostpartumTracker = () => {
         {mode === 'menopause' && (
           <form onSubmit={handleMenopauseSubmit} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Symptoms (e.g., hot flashes, mood swings):</label>
+              <label style={styles.highlightedLabel}>Symptoms (e.g., hot flashes, mood swings):</label>
               <textarea value={menopauseSymptoms} onChange={(e) => setMenopauseSymptoms(e.target.value)} style={styles.textarea} placeholder="Enter your symptoms here..." required />
             </div>
             <button type="submit" style={styles.button}>Get Guidance</button>
@@ -477,6 +468,15 @@ const PregnancyPostpartumTracker = () => {
           </div>
         )}
       </div>
+      <Toaster 
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            zIndex: 9999,
+          },
+        }}
+      />
     </div>
   );
 };
@@ -488,21 +488,41 @@ const styles = {
     alignItems: 'center',
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
-    boxSizing: 'border-box',
+    padding: '20px',
+    paddingTop: '90px',
+    backgroundImage: 'url(/background.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+    zIndex: 1,
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(253, 232, 233, 0.7)',
+      zIndex: -1,
+    }
   },
   trackerContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    // backgroundColor: '#FFFFFF',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
+    border: '2px solid #B85170',
     width: '100%',
-    maxWidth: '600px',
+    maxWidth: '1000px',
+    position: 'relative',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Added transparency to the background
+    backdropFilter: 'blur(5px)', // Optional: adds a slight blur effect for better readability
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -523,6 +543,8 @@ const styles = {
     cursor: 'pointer',
     transition: 'background-color 0.3s',
     flexShrink: 0,
+    backgroundColor: '#ccc',
+    color: '#333',
   },
   form: {
     display: 'flex',
@@ -535,30 +557,32 @@ const styles = {
     alignItems: 'flex-start',
     gap: '5px',
   },
-  label: {
+  highlightedLabel: { // Updated to include all specified labels
     fontSize: '16px',
-    color: '#333',
+    color: '#B85170',
   },
   input: {
     padding: '10px',
     fontSize: '16px',
     borderRadius: '5px',
-    border: '1px solid #ccc',
+    border: '1px solid #ddd',
     width: '100%',
     boxSizing: 'border-box',
+    color: '#000000',
   },
   textarea: {
     padding: '10px',
     fontSize: '16px',
     borderRadius: '5px',
-    border: '1px solid #ccc',
+    border: '1px solid #ddd',
     width: '100%',
     boxSizing: 'border-box',
     minHeight: '100px',
+    color: '#000000',
   },
   calendar: {
     width: '100%',
-    border: '1px solid #ccc',
+    border: '1px solid #ddd',
     borderRadius: '5px',
   },
   calendarInputContainer: {
@@ -571,11 +595,11 @@ const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
     fontSize: '20px',
-    color: '#ff8c00',
+    color: '#B85170',
     cursor: 'pointer',
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B85170',
     color: '#fff',
     padding: '10px 20px',
     fontSize: '16px',
@@ -589,13 +613,13 @@ const styles = {
   result: {
     marginTop: '20px',
     fontSize: '16px',
-    color: '#333',
+    color: '#000000',
   },
   popup: {
     position: 'fixed',
     top: '20px',
     right: '20px',
-    backgroundColor: '#4caf50',
+    backgroundColor: '#E7E5FF',
     color: '#fff',
     padding: '10px 20px',
     borderRadius: '5px',

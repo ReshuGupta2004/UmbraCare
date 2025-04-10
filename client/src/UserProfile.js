@@ -1,4 +1,4 @@
-// client/src/UserProfile.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -44,7 +44,7 @@ const UserProfile = () => {
   }, []);
 
   if (!user && error) return <div style={styles.container}>{error}</div>;
-if (!user) return <div style={styles.container}>Loading...</div>;
+  if (!user) return <div style={styles.container}>Loading...</div>;
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -81,14 +81,49 @@ if (!user) return <div style={styles.container}>Loading...</div>;
     }
   };
 
-  if (!user) {
-    return <div style={styles.container}>Loading...</div>;
-  }
+  const handleUseForChange = async (e) => {
+    const { useFor } = e.target.value;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found. Please log in again.');
+      }
+      const response = await axios.put(
+        'http://localhost:5000/api/users/useFor',
+        { useFor },
+        { headers: { 'x-auth-token': token } }
+      );
+      setUser(response.data);
+      setSuccess('Use for updated successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+      localStorage.setItem('useFor', useFor);
+    } catch (err) {
+      console.error('Error updating use for:', err.response?.data || err.message);
+      setError(`Error updating use for: ${err.response?.data?.msg || err.message}`);
+    }
+  };
+
+
+
+  
 
   return (
     <div style={styles.container}>
       <div style={styles.profileContainer}>
         <h2 style={styles.heading}>User Profile</h2>
+        <div style={{display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center'}}>
+          <p>Use for: {localStorage.getItem('useFor')}</p>
+          <select 
+            value={localStorage.getItem('useFor') || ''}
+            onChange={handleUseForChange}
+            style={styles.select}
+          >
+            <option value="pregnancy">Pregnancy</option>
+            <option value="period">Period</option>
+            <option value="ivf">IVF</option>
+          </select>
+        </div>
+
         {error && <p style={styles.error}>{error}</p>}
         {success && <p style={styles.success}>{success}</p>}
 
@@ -169,20 +204,36 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
+    backgroundImage: 'url(/background.jpg)', // Added from Newsletter
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+    zIndex: 1,
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(253, 232, 233, 0.7)', // Light pink overlay from Newsletter
+      zIndex: -1,
+    }
   },
   profileContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#FFFFFF', // Changed to pure white like Newsletter
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
+    border: '2px solid #B85170', // Changed from #ff8c00 to primary color
     width: '100%',
     maxWidth: '600px',
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#B85170', // Changed from #ff8c00 to primary color
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -193,12 +244,12 @@ const styles = {
   },
   error: {
     fontSize: '16px',
-    color: 'red',
+    color: '#FF4D4D', // Changed to standard red for visibility
     marginBottom: '20px',
   },
   success: {
     fontSize: '16px',
-    color: '#4caf50',
+    color: '#4CAF50', // Kept green for success visibility
     marginBottom: '20px',
   },
   viewMode: {
@@ -217,7 +268,7 @@ const styles = {
   },
   label: {
     fontSize: '16px',
-    color: '#333',
+    color: '#B85170', // Changed to secondary color for labels
   },
   input: {
     padding: '10px',
@@ -226,6 +277,7 @@ const styles = {
     border: '1px solid #ccc',
     width: '100%',
     boxSizing: 'border-box',
+    color: '#000000', // Added to match Newsletter's input text color
   },
   textarea: {
     padding: '10px',
@@ -235,10 +287,11 @@ const styles = {
     width: '100%',
     boxSizing: 'border-box',
     minHeight: '100px',
+    color: '#000000', // Added to match Newsletter's input text color
   },
   button: {
-    backgroundColor: '#ff8c00',
-    color: '#fff',
+    backgroundColor: '#B85170', // Changed from #ff8c00 to primary color
+    color: '#FFFFFF',
     padding: '10px 20px',
     fontSize: '16px',
     border: 'none',
@@ -247,7 +300,7 @@ const styles = {
     transition: 'background-color 0.3s',
   },
   cancelButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#CCC', // Kept as is, matches Newsletter's cancel button
     color: '#333',
     padding: '10px 20px',
     fontSize: '16px',

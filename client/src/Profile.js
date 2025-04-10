@@ -1,4 +1,3 @@
-// client/src/Profile.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -14,7 +13,6 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Fetch user profile on component mount
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -40,7 +38,6 @@ const Profile = () => {
     fetchUserProfile();
   }, []);
 
-  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -48,7 +45,6 @@ const Profile = () => {
     });
   };
 
-  // Handle form submission to update profile
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -68,10 +64,32 @@ const Profile = () => {
       setUser(response.data);
       setIsEditing(false);
       setSuccess('Profile updated successfully!');
-      setTimeout(() => setSuccess(''), 3000); // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error('Error updating profile:', err.response?.data || err.message);
       setError(`Error updating profile: ${err.response?.data?.msg || err.message}`);
+    }
+  };
+
+  const handleUseForChange = async (e) => {
+    const { useFor } = e.target.value;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found. Please log in again.');
+      }
+      const response = await axios.put(
+        'http://localhost:5000/api/users/useFor',
+        { useFor },
+        { headers: { 'x-auth-token': token } }
+      );
+      setUser(response.data);
+      setSuccess('Use for updated successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+      localStorage.setItem('useFor', useFor);
+    } catch (err) {
+      console.error('Error updating use for:', err.response?.data || err.message);
+      setError(`Error updating use for: ${err.response?.data?.msg || err.message}`);
     }
   };
 
@@ -82,6 +100,20 @@ const Profile = () => {
     <div style={styles.container}>
       <div style={styles.profileContainer}>
         <h2 style={styles.heading}>User Profile</h2>
+        <div style={{display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center'}}>
+          <p>You are using for: {localStorage.getItem('useFor')}</p>
+          <select 
+            value={localStorage.getItem('useFor') || ''}
+            onChange={(e) => {
+              const useFor = e.target.value;
+              handleUseForChange({ target: { value: { useFor } } });
+            }}
+            style={{...styles.input, padding: '5px 10px', fontSize: '14px', width: 'auto'}}
+          >
+            <option value="pregnancy">Pregnancy</option>
+            <option value="period">Period</option>
+          </select>
+        </div>
         {error && <p style={styles.error}>{error}</p>}
         {success && <p style={styles.success}>{success}</p>}
 
@@ -112,7 +144,7 @@ const Profile = () => {
                 readOnly
                 style={{
                   ...styles.readOnlyTextarea,
-                  color: user.medicalHistory ? '#333' : '#999',
+                  color: user.medicalHistory ? '#000000' : '#999',
                 }}
               />
             </div>
@@ -123,7 +155,7 @@ const Profile = () => {
                 readOnly
                 style={{
                   ...styles.readOnlyTextarea,
-                  color: user.menstrualHistory ? '#333' : '#999',
+                  color: user.menstrualHistory ? '#000000' : '#999',
                 }}
               />
             </div>
@@ -198,21 +230,40 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
-    paddingTop: '80px', // To account for the fixed navbar
+    paddingTop: '80px',
+    backgroundImage: 'url(/background.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+    zIndex: 1,
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(253, 232, 233, 0.7)',
+      zIndex: -1,
+    }
   },
   profileContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Added transparency to the background
+    backdropFilter: 'blur(5px)', // Optional: adds a slight blur effect for better readability
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
+    border: '2px solid #B15870',
     width: '100%',
     maxWidth: '600px',
+    position: 'relative',
+    zIndex: 2,
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '20px',
     fontWeight: '600',
   },
@@ -232,7 +283,7 @@ const styles = {
   },
   label: {
     fontSize: '16px',
-    color: '#333',
+    color: '#B85170',
     fontWeight: '500',
   },
   input: {
@@ -242,6 +293,7 @@ const styles = {
     border: '1px solid #ccc',
     width: '100%',
     boxSizing: 'border-box',
+    color: '#000000',
   },
   readOnlyInput: {
     padding: '10px',
@@ -250,8 +302,8 @@ const styles = {
     border: '1px solid #ccc',
     width: '100%',
     boxSizing: 'border-box',
-    backgroundColor: '#f9f9f9', // Light gray background to indicate read-only
-    color: '#333',
+    backgroundColor: '#f9f9f9',
+    color: '#000000',
   },
   textarea: {
     padding: '10px',
@@ -261,6 +313,7 @@ const styles = {
     width: '100%',
     boxSizing: 'border-box',
     minHeight: '100px',
+    color: '#000000',
   },
   readOnlyTextarea: {
     padding: '10px',
@@ -270,10 +323,10 @@ const styles = {
     width: '100%',
     boxSizing: 'border-box',
     minHeight: '100px',
-    backgroundColor: '#f9f9f9', // Light gray background to indicate read-only
+    backgroundColor: '#f9f9f9',
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870',
     color: '#fff',
     padding: '10px 20px',
     fontSize: '16px',
@@ -281,7 +334,7 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.3s',
-    width: '100%', // Full-width button to match screenshot
+    width: '100%',
   },
   cancelButton: {
     backgroundColor: '#ccc',
@@ -301,13 +354,16 @@ const styles = {
   },
   error: {
     fontSize: '16px',
-    color: 'red',
+    color: '#FF4444',
     marginBottom: '20px',
   },
   success: {
     fontSize: '16px',
-    color: '#4caf50',
+    backgroundColor: '#E7E5FF', // Changed from implied green to purple
+    color: '#3D348B', // Changed from #4CAF50 (green) to dark purple
     marginBottom: '20px',
+    padding: '10px', // Added padding for better appearance
+    borderRadius: '5px', // Added border radius for consistency
   },
 };
 

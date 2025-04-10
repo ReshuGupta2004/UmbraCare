@@ -27,5 +27,6 @@ app.use('/api/newsletter', require('./routes/newsletter'));
 app.use('/api/newsData', require('./routes/newsData'));
 app.use('/api/period-tracker', require('./routes/PeriodTrackerRoutes'));
 app.use('/api/pregnancy', require('./routes/pregnencyRoute'));
+app.use('/api/feedback', require('./routes/feedback'));
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

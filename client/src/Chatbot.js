@@ -1,10 +1,7 @@
-// // client/src/Chatbot.js
 // import React, { useState, useEffect, useRef } from 'react';
-// import { FaRobot } from 'react-icons/fa';
-// import { FaMicrophone } from 'react-icons/fa';
-// import { IoSend } from 'react-icons/io5';
-// import { IoClose } from 'react-icons/io5';
-// // import dotenv from 'dotenv';
+// import { FaRobot, FaMicrophone } from 'react-icons/fa';
+// import { IoSend, IoClose } from 'react-icons/io5';
+
 // const Chatbot = () => {
 //   const [isOpen, setIsOpen] = useState(false);
 //   const [messages, setMessages] = useState([
@@ -14,34 +11,28 @@
 //   const [isTyping, setIsTyping] = useState(false);
 //   const chatBoxRef = useRef(null);
 //   const inputRef = useRef(null);
-  
-//   // Store last conversation topic
-//   const lastTopicRef = useRef("");
-  
-//   // Initialize speech recognition
 //   const recognitionRef = useRef(null);
-  
+//   const lastTopicRef = useRef("");
+
 //   useEffect(() => {
-//     // Initialize speech recognition if available
 //     if ("webkitSpeechRecognition" in window) {
 //       recognitionRef.current = new window.webkitSpeechRecognition();
 //       recognitionRef.current.lang = "en-US";
 //       recognitionRef.current.continuous = false;
 //       recognitionRef.current.interimResults = false;
 //       recognitionRef.current.maxAlternatives = 1;
-      
+
 //       recognitionRef.current.onresult = (event) => {
 //         const transcript = event.results[0][0].transcript;
 //         setInputValue(transcript);
 //         handleSendMessage(transcript);
 //       };
-      
+
 //       recognitionRef.current.onerror = (event) => {
 //         console.error("Speech recognition error:", event.error);
 //       };
 //     }
-    
-//     // Scroll to bottom when messages change
+
 //     if (chatBoxRef.current) {
 //       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
 //     }
@@ -50,13 +41,11 @@
 //   const toggleChatbot = () => {
 //     setIsOpen(!isOpen);
 //   };
-  
-//   // Function to check for doctor queries
+
 //   const isDoctorQuery = (userMessage) => {
 //     return /doctor|specialist|hospital|clinic|treatment/i.test(userMessage);
 //   };
-  
-//   // Function to search for doctors online
+
 //   const searchDoctorsOnline = async (userMessage) => {
 //     const query = encodeURIComponent(userMessage);
 //     const searchUrl = `https://www.google.com/search?q=${query}`;
@@ -67,47 +56,42 @@
 //       </ul>
 //     `;
 //   };
-  
-//   // Function to call Gemini API
+
 //   const callGeminiAPI = async (userMessage) => {
 //     if (isDoctorQuery(userMessage)) {
 //       return searchDoctorsOnline(userMessage);
 //     }
-    
-//     // This is a placeholder for the actual API call
-//     // In a real implementation, you would need to set up your API key securely
-//     // For now, we'll return a mock response
-    
+
 //     if (userMessage.toLowerCase().includes("more info") && lastTopicRef.current) {
 //       userMessage = `Give me more details about ${lastTopicRef.current}`;
 //     } else {
 //       lastTopicRef.current = userMessage;
 //     }
-    
+
 //     try {
-//       // Mock API response for demonstration
 //       const API_KEY = "AIzaSyBlK3GWHjy_jKXXxHgHglPsm87CiFEJDJ4";
-//       // console.log(API_KEY);
 //       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-//       // https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}
 //       const response = await fetch(`${url}?key=${API_KEY}`, {
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
 //         },
 //         body: JSON.stringify({
-//           contents: [{ parts: [{ text: userMessage }] }],
+//           contents: [{ 
+//             parts: [{ 
+//               text: `${userMessage}. Provide concise, point-wise answer. Keep responses brief (1-3 lines per point) but cover all key details. Prioritize clarity and usefulness. If unsure, ask for clarification..` 
+//             }] 
+//           }],
 //           generationConfig: {
 //             temperature: 0.7,
-//             maxOutputTokens: 1024,
+//             maxOutputTokens: 512,
 //           }
 //         }),
 //       });
-      
+
 //       const data = await response.json();
 //       if (data.candidates && data.candidates[0].content) {
 //         const aiResponse = data.candidates[0].content.parts[0].text;
-//         // console.log(aiResponse);
 //         return formatResponse(aiResponse);
 //       } else {
 //         return "<p>Sorry, I couldn't generate a response at this time.</p>";
@@ -117,32 +101,35 @@
 //       return "<p>Error connecting to AI service.</p>";
 //     }
 //   };
-  
-//   // Function to format AI response
+
 //   const formatResponse = (responseText) => {
+//     // Extract only the most relevant parts of the response
 //     const lines = responseText.split("\n").filter(line => line.trim());
 //     let formatted = "<ul>";
-//     let count = 0;
     
-//     for (let line of lines) {
-//       if (count >= 10) break;
+//     // Process only the most relevant points without a fixed limit
+//     for (let i = 0; i < lines.length; i++) {
+//       // Skip empty or very short lines that likely don't contain useful information
+//       if (lines[i].length < 3) continue;
       
-//       if (line.includes(":")) {
-//         const parts = line.split(":");
+//       let formattedLine = lines[i].trim();
+//       // Remove all asterisks from the line
+//       formattedLine = formattedLine.replace(/\*/g, '');
+
+//       if (formattedLine.includes(":")) {
+//         const parts = formattedLine.split(":");
 //         const header = parts[0].trim();
 //         const body = parts.slice(1).join(":").trim();
-//         formatted += `<li><span class="highlight">${header}</span>: ${body}</li>`;
+//         formatted += `<li><strong>${header}</strong>: ${body}</li>`;
 //       } else {
-//         formatted += `<li>${line.trim()}</li>`;
+//         formatted += `<li>${formattedLine}</li>`;
 //       }
-      
-//       count++;
 //     }
-    
-//     return formatted + "</ul>";
+
+//     formatted += "</ul>";
+//     return formatted;
 //   };
-  
-//   // Function to simulate typing effect
+
 //   const typeResponse = async (formattedHTML) => {
 //     setIsTyping(true);
     
@@ -175,31 +162,25 @@
     
 //     setIsTyping(false);
 //   };
-  
-//   // Handle sending a message
+
 //   const handleSendMessage = async (text = inputValue) => {
 //     const userMessage = text.trim();
 //     if (!userMessage) return;
-    
-//     // Add user message to chat
+
 //     setMessages(prevMessages => [
 //       ...prevMessages,
 //       { type: 'user', text: userMessage }
 //     ]);
-    
-//     // Clear input field
+
 //     setInputValue('');
-    
-//     // Add loading message
+
 //     setMessages(prevMessages => [
 //       ...prevMessages,
 //       { type: 'model', text: '...', items: [], isLoading: true }
 //     ]);
-    
-//     // Get bot response
+
 //     const botResponse = await callGeminiAPI(userMessage);
-    
-//     // Replace loading message with actual response
+
 //     setMessages(prevMessages => {
 //       const newMessages = [...prevMessages];
 //       const loadingIndex = newMessages.findIndex(msg => msg.isLoading);
@@ -214,12 +195,10 @@
 //       }
 //       return newMessages;
 //     });
-    
-//     // Apply typing effect
+
 //     await typeResponse(botResponse);
 //   };
-  
-//   // Handle voice recognition
+
 //   const handleVoiceRecognition = () => {
 //     if (!recognitionRef.current) {
 //       alert("Your browser doesn't support speech recognition. Please use Chrome.");
@@ -461,6 +440,7 @@
 
 // export default Chatbot;
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { FaRobot, FaMicrophone } from 'react-icons/fa';
 import { IoSend, IoClose } from 'react-icons/io5';
@@ -566,17 +546,13 @@ const Chatbot = () => {
   };
 
   const formatResponse = (responseText) => {
-    // Extract only the most relevant parts of the response
     const lines = responseText.split("\n").filter(line => line.trim());
     let formatted = "<ul>";
     
-    // Process only the most relevant points without a fixed limit
     for (let i = 0; i < lines.length; i++) {
-      // Skip empty or very short lines that likely don't contain useful information
       if (lines[i].length < 3) continue;
       
       let formattedLine = lines[i].trim();
-      // Remove all asterisks from the line
       formattedLine = formattedLine.replace(/\*/g, '');
 
       if (formattedLine.includes(":")) {
@@ -720,7 +696,7 @@ const Chatbot = () => {
               style={styles.voiceButton}
               onClick={handleVoiceRecognition}
             >
-              <FaMicrophone size={16} color="#ff8c00" />
+              <FaMicrophone size={16} color="#B15870" />
             </button>
             
             <input
@@ -737,7 +713,7 @@ const Chatbot = () => {
               style={styles.sendButton}
               onClick={() => handleSendMessage()}
             >
-              <IoSend size={16} color="#ff8c00" />
+              <IoSend size={16} color="#B15870" />
             </button>
           </div>
         </div>
@@ -758,7 +734,7 @@ const styles = {
     zIndex: 1000,
   },
   chatbotIcon: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870', // Changed from #ff8c00
     color: '#fff',
     padding: '15px',
     borderRadius: '50%',
@@ -775,7 +751,7 @@ const styles = {
     width: '350px',
     height: '500px',
     marginBottom: '10px',
-    border: '2px solid #ff8c00',
+    border: '2px solid #B15870', // Changed from #ff8c00
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -786,13 +762,13 @@ const styles = {
     right: '10px',
     backgroundColor: 'transparent',
     border: 'none',
-    color: '#ff8c00',
+    color: '#B15870', // Changed from #ff8c00
     fontSize: '20px',
     cursor: 'pointer',
     zIndex: 10,
   },
   chatHeader: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870', // Changed from #ff8c00
     padding: '15px',
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
@@ -828,26 +804,26 @@ const styles = {
   },
   modelMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#fff8f0',
+    backgroundColor: 'rgba(253, 232, 233, 1)', // Changed from #fff8f0 to match other components
     borderRadius: '15px 15px 15px 0',
     padding: '10px 15px',
     maxWidth: '80%',
     display: 'flex',
     position: 'relative',
-    border: '1px solid #ffe0c0',
+    border: '1px solid #B15870', // Changed border color from #ffe0c0
   },
   userIcon: {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870', // Changed from #ff8c00
     marginLeft: '10px',
   },
   botIcon: {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870', // Changed from #ff8c00
     marginRight: '10px',
     display: 'flex',
     justifyContent: 'center',

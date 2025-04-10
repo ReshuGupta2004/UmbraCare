@@ -1,4 +1,3 @@
-// client/src/Notifications.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -44,7 +43,6 @@ const Notifications = () => {
         },
       });
       
-      // Update the local state to reflect the change
       setNotifications(notifications.map(notification => 
         notification._id === id ? { ...notification, isRead: true } : notification
       ));
@@ -59,6 +57,7 @@ const Notifications = () => {
 
   return (
     <div style={styles.container}>
+      <div style={styles.overlay}></div>
       <div style={styles.notificationsContainer}>
         <h2 style={styles.heading}>Notifications</h2>
         {error && <p style={styles.error}>{error}</p>}
@@ -71,7 +70,7 @@ const Notifications = () => {
               <li key={notification._id} style={{
                 ...styles.notificationItem,
                 backgroundColor: notification.isRead ? '#f0f0f0' : '#f9f9f9',
-                borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #ff8c00'
+                borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #B15870'
               }}>
                 <strong>{notification.type === 'medication_reminder' ? 'Medication Reminder' : 'Appointment Reminder'}:</strong> {notification.message}
                 <br />
@@ -104,36 +103,58 @@ const styles = {
     minHeight: '100vh',
     fontFamily: "'Poppins', sans-serif",
     boxSizing: 'border-box',
+    paddingTop: '90px',
+    backgroundImage: 'url(/background.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
+    zIndex: 1,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(253, 232, 233, 0.7)',
+    zIndex: -1,
   },
   notificationsContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Added transparency to the background
+    backdropFilter: 'blur(5px)', // Optional: adds a slight blur effect for better readability
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    border: '2px solid #ff8c00',
+    border: '2px solid #B15870',
     width: '100%',
     maxWidth: '600px',
+    position: 'relative',
+    zIndex: 2,
   },
   heading: {
     fontSize: '28px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '20px',
     fontWeight: '600',
   },
   info: {
     fontSize: '16px',
-    color: '#333',
+    color: '#000000',
   },
   error: {
     fontSize: '16px',
-    color: 'red',
+    color: '#FF4444',
     marginBottom: '20px',
   },
   success: {
     fontSize: '16px',
-    color: 'green',
+    backgroundColor: '#E7E5FF', // Changed from implied green to purple
+    color: '#3D348B', // Changed from #4CAF50 (green) to dark purple
     marginBottom: '20px',
+    padding: '10px', // Added padding for better appearance
+    borderRadius: '5px', // Added border radius for consistency
   },
   notificationList: {
     listStyleType: 'none',
@@ -153,7 +174,7 @@ const styles = {
     justifyContent: 'flex-end',
   },
   markReadButton: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#B15870',
     color: 'white',
     border: 'none',
     padding: '5px 10px',
