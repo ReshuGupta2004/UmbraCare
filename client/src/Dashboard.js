@@ -6,6 +6,7 @@ import Plotly from 'plotly.js-dist-min';
 import axios from 'axios';
 import { FaCheck, FaPlus } from 'react-icons/fa';
 import * as d3 from 'd3';
+import {motion} from 'framer-motion';
 
 function list(start, end) {
   return Array.from({ length: end - start + 1 }, (v, k) => k + start);
@@ -220,8 +221,8 @@ const Dashboard = () => {
     
     g.append("circle")
       .attr("r", radius + 25)
-      .attr("fill", "rgba(255, 140, 0, 0.03)")
-      .attr("stroke", "rgba(255, 140, 0, 0.08)")
+      .attr("fill", "rgba(184, 81, 112, 0.03)")
+      .attr("stroke", "rgba(184, 81, 112, 0.08)")
       .attr("stroke-width", 1);
     
     g.append("path")
@@ -230,8 +231,8 @@ const Dashboard = () => {
         .innerRadius(radius - 15)
         .outerRadius(radius)
         .startAngle(0))
-      .attr("fill", "#FFF5E6")
-      .attr("stroke", "#FFD4A3")
+      .attr("fill", "#FFF5F5")
+      .attr("stroke", "#FFD931")
       .attr("stroke-width", 1);
     
     const gradient = svg.append("defs")
@@ -242,11 +243,11 @@ const Dashboard = () => {
     
     gradient.append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "#FF9E40");
+      .attr("stop-color", "#E891AD");
     
     gradient.append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", "#FF6B00");
+      .attr("stop-color", "#B85170");
     
     g.append("path")
       .datum({ endAngle: 2 * Math.PI * progress })
@@ -255,7 +256,7 @@ const Dashboard = () => {
         .outerRadius(radius)
         .startAngle(0))
       .attr("fill", "url(#progress-gradient)")
-      .attr("stroke", "#FF4500")
+      .attr("stroke", "#B85170")
       .attr("stroke-width", 1.5);
     
     const trimesterAngles = [0, 2*Math.PI/3, 4*Math.PI/3];
@@ -265,7 +266,7 @@ const Dashboard = () => {
         .attr("y1", (radius - 10) * Math.sin(angle))
         .attr("x2", (radius + 20) * Math.cos(angle))
         .attr("y2", (radius + 20) * Math.sin(angle))
-        .attr("stroke", "#FF8C00")
+        .attr("stroke", "#B85170")
         .attr("stroke-width", 1)
         .attr("stroke-dasharray", "4,2")
         .attr("opacity", 0.7);
@@ -276,7 +277,7 @@ const Dashboard = () => {
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
         .style("font-size", "11px")
-        .style("fill", "#FF8C00")
+        .style("fill", "#B85170")
         .style("font-weight", "600")
         .style("opacity", 0.9)
         .text(`Trimester ${i+1}`);
@@ -286,7 +287,7 @@ const Dashboard = () => {
       .attr("text-anchor", "middle")
       .attr("dy", "40")
       .style("font-size", "13px")
-      .style("fill", "#FF6B00")
+      .style("fill", "#B85170")
       .style("font-weight", "bold")
       .style("text-shadow", "0 1px 2px rgba(255,255,255,0.8)")
       .text(() => {
@@ -502,7 +503,8 @@ const Dashboard = () => {
 
         {/* Second Row: 3 Charts */}
         <div style={styles.graphRow}>
-          {/* Pregnancy Journey */}
+          
+          {/* Pregnancy Tracker */}
           <div style={styles.cardContainer}>
             <div style={styles.cardHeader}>
               <h3 style={styles.cardTitle}>Pregnancy Tracker</h3>
@@ -523,7 +525,7 @@ const Dashboard = () => {
                   transform: 'translate(-50%, -50%)',
                   width: `${15 + (currentWeek * 1.2)}px`,
                   height: `${15 + (currentWeek * 1.2)}px`,
-                  backgroundImage: 'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjRkY4QzAwIiBkPSJNMjU2IDQ0OGMtMTA2IDAtMTkyLTg2LTE5Mi0xOTJTMTUwIDY0IDI1NiA2NHMxOTIgODYgMTkyIDE5Mi04NiAxOTItMTkyIDE5MnpNMTI4IDI3MmMwLTM1LjMgMjguNy02NCA2NC02NHM2NCAyOC43IDY0IDY0LTI4LjcgNjQtNjQgNjQtNjQtMjguNy02NC02NHptMTI4IDBjMC0zNS4zIDI4LjctNjQgNjQtNjRzNjQgMjguNyA2NCA2NC0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjR6Ii8+PC9zdmc+")',
+                  backgroundImage: 'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjQjg1MTcwIiBkPSJNMjU2IDQ0OGMtMTA2IDAtMTkyLTg2LTE5Mi0xOTJTMTUwIDY0IDI1NiA2NHMxOTIgODYgMTkyIDE5Mi04NiAxOTItMTkyIDE5MnpNMTI4IDI3MmMwLTM1LjMgMjguNy02NCA2NC02NHM2NCAyOC43IDY0IDY0LTI4LjcgNjQtNjQgNjQtNjQtMjguNy02NC02NHptMTI4IDBjMC0zNS4zIDI4LjctNjQgNjQtNjRzNjQgMjguNyA2NCA2NC0yOC43IDY0LTY0IDY0LTY0LTI4LjctNjQtNjR6Ii8+PC9zdmc+")',
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center',
@@ -555,12 +557,13 @@ const Dashboard = () => {
                 <div  style={styles.phaseIndicators} >
                 <p style={{ 
                   marginTop: '15px',
-                  color: '#B85170',
+                  color: '#666',///
                   fontSize: '14px',
                   fontWeight: '500',
                   padding: '0 20px',
                   position: 'relative',
                   zIndex: 20,
+                  backgroundColor: 'rgba(255,233,237,0.7)',
                   width: '350px',
                   height: '25px',
                  
@@ -590,238 +593,287 @@ const Dashboard = () => {
       height: '100%',
       gap: '10px'
     }}>
+      
       {/* Heart Rate */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        borderRight: '1px solid #FFD4A3',
-        padding: '0 5px'
-      }}>
-        <div style={{
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#FF6B8B',
-          marginBottom: '10px'
-        }}>Heart Rate</div>
-        <div style={{ width: '100%', height: '120px' }}>
-          <Plot
-            data={[{
-              type: 'scatter',
-              mode: 'lines+markers',
-              x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
-              y: healthData?.heartRates || [72, 85, 78, 90, 82, 76, 68],
-              line: { 
-                color: '#FF6B8B', 
-                width: 2, 
-                shape: 'spline',
-                smoothing: 1.3 
-              },
-              marker: {
-                size: 6,
-                color: '#FF6B8B'
-              },
-              fill: 'tozeroy',
-              fillcolor: 'rgba(255, 107, 139, 0.1)'
-            }]}
-            layout={{
-              width: 120,
-              height: 120,
-              margin: { t: 10, l: 30, r: 10, b: 30 },
-              plot_bgcolor: 'rgba(0,0,0,0)',
-              paper_bgcolor: 'rgba(0,0,0,0)',
-              xaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 }
-              },
-              yaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 },
-                range: [healthData?.stats?.heartRate?.lowest || 60, healthData?.stats?.heartRate?.highest || 100]
-              },
-              showlegend: false,
-              hovermode: 'closest',
-              hoverlabel: {
-                bgcolor: '#FF6B8B',
-                font: { color: 'white' }
-              }
-            }}
-            config={{ displayModeBar: false }}
-          />
-        </div>
-        <div style={{ textAlign: 'center', marginTop: '5px' }}>
-          <div style={{ fontSize: '12px', color: '#666' }}>Lowest: {healthData?.stats?.heartRate?.lowest || 68} bpm</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>Highest: {healthData?.stats?.heartRate?.highest || 90} bpm</div>
-        </div>
-      </div>
-
-      {/* Blood Pressure */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        borderRight: '1px solid #FFD4A3',
-        padding: '0 5px'
-      }}>
-        <div style={{
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#FFA500',
-          marginBottom: '10px'
-        }}>Blood Pressure</div>
-        <div style={{ width: '100%', height: '120px' }}>
-          <Plot
-            data={[
-              {
-                type: 'scatter',
-                mode: 'lines+markers',
-                x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
-                y: healthData?.bloodPressures || [115, 125, 118, 130, 122, 120, 110],
-                name: 'Systolic',
-                line: { 
-                  color: '#FFA500', 
-                  width: 2, 
-                  shape: 'spline',
-                  smoothing: 1.3 
-                },
-                marker: {
-                  size: 6,
-                  color: '#FFA500'
-                },
-                fill: 'tozeroy',
-                fillcolor: 'rgba(255, 165, 0, 0.1)'
-              },
-              {
-                type: 'scatter',
-                mode: 'lines+markers',
-                x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
-                y: healthData?.diastolicPressures || [70, 75, 72, 80, 78, 75, 70],
-                name: 'Diastolic',
-                line: { 
-                  color: '#FF8C00', 
-                  width: 2, 
-                  shape: 'spline',
-                  smoothing: 1.3 
-                },
-                marker: {
-                  size: 6,
-                  color: '#FF8C00'
-                },
-                fill: 'tozeroy',
-                fillcolor: 'rgba(255, 140, 0, 0.1)'
-              }
-            ]}
-            layout={{
-              width: 120,
-              height: 120,
-              margin: { t: 10, l: 30, r: 10, b: 30 },
-              plot_bgcolor: 'rgba(0,0,0,0)',
-              paper_bgcolor: 'rgba(0,0,0,0)',
-              xaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 }
-              },
-              yaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 },
-                range: [
-                  Math.min(...(healthData?.diastolicPressures || [60])), 
-                  Math.max(...(healthData?.bloodPressures || [140]))
-                ]
-              },
-              showlegend: false,
-              hovermode: 'closest',
-              hoverlabel: {
-                bgcolor: '#FFA500',
-                font: { color: 'white' }
-              }
-            }}
-            config={{ displayModeBar: false }}
-          />
-        </div>
-        <div style={{ textAlign: 'center', marginTop: '5px' }}>
-          <div style={{ fontSize: '12px', color: '#666' }}>
-            Systolic: {healthData?.stats?.bloodPressure?.systolic?.lowest || 110} - {healthData?.stats?.bloodPressure?.systolic?.highest || 130} mmHg
-          </div>
-          <div style={{ fontSize: '12px', color: '#666' }}>
-            Diastolic: {healthData?.stats?.bloodPressure?.diastolic?.lowest || 70} - {healthData?.stats?.bloodPressure?.diastolic?.highest || 90} mmHg
-          </div>
-        </div>
-      </div>
-
-      {/* Blood Sugar */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '0 5px'
-      }}>
-        <div style={{
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#FF4500',
-          marginBottom: '10px'
-        }}>Blood Sugar</div>
-        <div style={{ width: '100%', height: '120px' }}>
-          <Plot
-            data={[{
-              type: 'scatter',
-              mode: 'lines+markers',
-              x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
-              y: healthData?.bloodSugars || [90, 110, 95, 105, 100, 92, 88],
-              line: { 
-                color: '#FF4500', 
-                width: 2, 
-                shape: 'spline',
-                smoothing: 1.3 
-              },
-              marker: {
-                size: 6,
-                color: '#FF4500'
-              },
-              fill: 'tozeroy',
-              fillcolor: 'rgba(255, 69, 0, 0.1)'
-            }]}
-            layout={{
-              width: 120,
-              height: 120,
-              margin: { t: 10, l: 30, r: 10, b: 30 },
-              plot_bgcolor: 'rgba(0,0,0,0)',
-              paper_bgcolor: 'rgba(0,0,0,0)',
-              xaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 }
-              },
-              yaxis: { 
-                showgrid: false, 
-                zeroline: false,
-                tickfont: { size: 8 },
-                range: [healthData?.stats?.bloodSugar?.lowest || 80, healthData?.stats?.bloodSugar?.highest || 120]
-              },
-              showlegend: false,
-              hovermode: 'closest',
-              hoverlabel: {
-                bgcolor: '#FF4500',
-                font: { color: 'white' }
-              }
-            }}
-            config={{ displayModeBar: false }}
-          />
-        </div>
-        <div style={{ textAlign: 'center', marginTop: '5px' }}>
-          <div style={{ fontSize: '12px', color: '#666' }}>Lowest: {healthData?.stats?.bloodSugar?.lowest || 88} mg/dL</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>Highest: {healthData?.stats?.bloodSugar?.highest || 110} mg/dL</div>
-        </div>
-      </div>
+<div style={{
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  borderRight: '1px solid #FFD4A3',
+  padding: '0 5px'
+}}>
+  <div style={{
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#B85170', // Changed color to #B85170 for "Heart Rate" text
+    marginBottom: '10px'
+  }}>Heart Rate</div>
+  <div style={{ width: '100%', height: '120px' }}>
+    <Plot
+      data={[{
+        type: 'scatter',
+        mode: 'lines+markers',
+        x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+        y: healthData?.heartRates || [72, 85, 78, 90, 82, 76, 68],
+        line: { 
+          color: '#FF6B8B', // Graph line color remains #FF6B8B
+          width: 2, 
+          shape: 'spline',
+          smoothing: 1.3 
+        },
+        marker: {
+          size: 6,
+          color: '#FF6B8B' // Marker color remains #FF6B8B
+        },
+        fill: 'tozeroy',
+        fillcolor: 'rgba(255, 107, 139, 0.1)' // Fill color remains based on #FF6B8B
+      }]}
+      layout={{
+        width: 120,
+        height: 120,
+        margin: { t: 10, l: 30, r: 10, b: 30 },
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        xaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 }
+        },
+        yaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 },
+          range: [healthData?.stats?.heartRate?.lowest || 60, healthData?.stats?.heartRate?.highest || 100]
+        },
+        showlegend: false,
+        hovermode: 'closest',
+        hoverlabel: {
+          bgcolor: '#FF6B8B', // Hover label background remains #FF6B8B
+          font: { color: 'white' }
+        }
+      }}
+      config={{ displayModeBar: false }}
+    />
+  </div>
+  <div style={{
+    textAlign: 'center',
+    marginTop: '5px',
+    backgroundColor: '#FFF5F5', // Light background like in Predicted Pregnancy Risk
+    padding: '10px',
+    borderRadius: '8px',
+    border: '1px solid #B85170', // Matching border color
+    width: '80%' ,
+    boxShadow:'0 2px 8px rgba(184,81,112,0.2)'///
+  }}>
+    <div style={{ fontSize: '12px' }}>
+      <span style={{ color: 'black', fontWeight: '600' }}>Lowest:</span> 
+      <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.heartRate?.lowest || 68} bpm</span>
     </div>
+    <div style={{ fontSize: '12px', marginTop: '5px' }}>
+      <span style={{ color: 'black', fontWeight: '600' }}>Highest:</span> 
+      <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.heartRate?.highest || 90} bpm</span>
+    </div>
+  </div>
+</div>
+
+     {/* Blood Pressure */}
+<div style={{
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  borderRight: '1px solid #FFD4A3',
+  padding: '0 5px'
+}}>
+  <div style={{
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#B85170', // Keeping "Blood Pressure" text color as is (you didn’t specify a change)
+    marginBottom: '10px'
+  }}>Blood Pressure</div>
+  <div style={{ width: '100%', height: '120px' }}>
+    <Plot
+      data={[
+        {
+          type: 'scatter',
+          mode: 'lines+markers',
+          x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+          y: healthData?.bloodPressures || [115, 125, 118, 130, 122, 120, 110],
+          name: 'Systolic',
+          line: { 
+            color: '#F477B1', // Changed to #F477B1
+            width: 2, 
+            shape: 'spline',
+            smoothing: 1.3 
+          },
+          marker: {
+            size: 6,
+            color: '#F477B1' // Changed to #F477B1
+          },
+          fill: 'tozeroy',
+          fillcolor: 'rgba(244, 119, 177, 0.1)' // Changed fill color to match #F477B1 with opacity
+        },
+        {
+          type: 'scatter',
+          mode: 'lines+markers',
+          x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+          y: healthData?.diastolicPressures || [70, 75, 72, 80, 78, 75, 70],
+          name: 'Diastolic',
+          line: { 
+            color: '#F477B1', // Changed to #F477B1 (same as Systolic for consistency)
+            width: 2, 
+            shape: 'spline',
+            smoothing: 1.3 
+          },
+          marker: {
+            size: 6,
+            color: '#F477B1' // Changed to #F477B1
+          },
+          fill: 'tozeroy',
+          fillcolor: 'rgba(244, 119, 177, 0.1)' // Changed fill color to match #F477B1 with opacity
+        }
+      ]}
+      layout={{
+        width: 120,
+        height: 120,
+        margin: { t: 10, l: 30, r: 10, b: 30 },
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        xaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 }
+        },
+        yaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 },
+          range: [
+            Math.min(...(healthData?.diastolicPressures || [60])), 
+            Math.max(...(healthData?.bloodPressures || [140]))
+          ]
+        },
+        showlegend: false,
+        hovermode: 'closest',
+        hoverlabel: {
+          bgcolor: '#F477B1', // Changed hover label background to #F477B1
+          font: { color: 'white' }
+        }
+      }}
+      config={{ displayModeBar: false }}
+    />
+  </div>
+  <div style={{ 
+          textAlign: 'center',
+          marginTop: '5px',
+          backgroundColor: '#FFF5F5',
+          padding: '10px',
+          borderRadius: '8px',
+          border: '1px solid #B85170',
+          width: '80%',
+          boxShadow: '0 2px 8px rgba(184, 81, 112, 0.2)'
+        }}>
+          <div style={{ fontSize: '12px' }}>
+            <span style={{ color: 'black', fontWeight: '600' }}>Systolic:</span> 
+            <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.bloodPressure?.systolic?.lowest || 110} - {healthData?.stats?.bloodPressure?.systolic?.highest || 130} mmHg</span>
+          </div>
+          <div style={{ fontSize: '12px', marginTop: '5px' }}>
+            <span style={{ color: 'black', fontWeight: '600' }}>Diastolic:</span> 
+            <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.bloodPressure?.diastolic?.lowest || 70} - {healthData?.stats?.bloodPressure?.diastolic?.highest || 90} mmHg</span>
+          </div>
+        </div>
+      </div>
+
+
+
+      
+
+  {/* Blood Sugar */}
+<div style={{
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '0 5px'
+}}>
+  <div style={{
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#B85170', // Changed "Blood Sugar" text color to #B85170
+    marginBottom: '10px'
+  }}>Blood Sugar</div>
+  <div style={{ width: '100%', height: '120px' }}>
+    <Plot
+      data={[{
+        type: 'scatter',
+        mode: 'lines+markers',
+        x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+        y: healthData?.bloodSugars || [90, 110, 95, 105, 100, 92, 88],
+        line: { 
+          color: '#FF6B8B', // Changed graph line color to #FF6B8B
+          width: 2, 
+          shape: 'spline',
+          smoothing: 1.3 
+        },
+        marker: {
+          size: 6,
+          color: '#FF6B8B' // Changed marker color to #FF6B8B
+        },
+        fill: 'tozeroy',
+        fillcolor: 'rgba(255, 107, 139, 0.1)' // Changed fill color to match #FF6B8B with opacity
+      }]}
+      layout={{
+        width: 120,
+        height: 120,
+        margin: { t: 10, l: 30, r: 10, b: 30 },
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        xaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 }
+        },
+        yaxis: { 
+          showgrid: false, 
+          zeroline: false,
+          tickfont: { size: 8 },
+          range: [healthData?.stats?.bloodSugar?.lowest || 80, healthData?.stats?.bloodSugar?.highest || 120]
+        },
+        showlegend: false,
+        hovermode: 'closest',
+        hoverlabel: {
+          bgcolor: '#FF6B8B', // Changed hover label background to #FF6B8B
+          font: { color: 'white' }
+        }
+      }}
+      config={{ displayModeBar: false }}
+    />
+  </div>
+<div style={{ 
+    textAlign: 'center',
+    marginTop: '5px',
+    backgroundColor: '#FFF5F5',
+    padding: '10px',
+    borderRadius: '8px',
+    border: '1px solid #B85170',
+    width: '80%',
+    boxShadow: '0 2px 8px rgba(184, 81, 112, 0.2)'
+  }}>
+    <div style={{ fontSize: '12px' }}>
+      <span style={{ color: 'black', fontWeight: '600' }}>Lowest:</span> 
+      <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.bloodSugar?.lowest || 88} mg/dL</span>
+    </div>
+    <div style={{ fontSize: '12px', marginTop: '5px' }}>
+      <span style={{ color: 'black', fontWeight: '600' }}>Highest:</span> 
+      <span style={{ color: '#B85170', marginLeft: '5px' }}>{healthData?.stats?.bloodSugar?.highest || 110} mg/dL</span>
+    </div>
+  </div>
+
+
+
+</div> 
+</div>
   </div>
 </div>
 
@@ -859,16 +911,19 @@ const Dashboard = () => {
                     {pregnancyData ? pregnancyData.split(': ')[1] : 'Mid Risk'}
                   </div>
                   <div style={{
-                    backgroundColor: '#FFF5EB',
+                    backgroundColor: '#FFF5F5',////
                     padding: '10px 15px',
                     borderRadius: '8px',
-                    border: '1px solid #FFD4A3',
-                    width: '80%'
+                    border: '1px solid #B85170',///
+                    width: '80%',
+                    boxShadow: '0 2px 8px rgba(184, 81, 112, 0.2)'///
+                    
                   }}>
                     <div style={{
                       fontSize: '14px',
-                      color: '#FF8C00',
-                      fontWeight: '600'
+                      color: '#B85170',//////
+                      fontWeight: '600',
+                      textAlign: 'center'
                     }}>
                       Last prediction: Week {week}
                     </div>
@@ -890,7 +945,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-        <div style={styles.buttonGrid}>
+        {/* <div style={styles.buttonGrid}>
           <Link to="/pregnancy-postpartum-tracker" style={styles.gridButton}>
             <FaBaby style={styles.icon} />
             <span>Pregnancy & Postpartum Tracker</span>
@@ -907,7 +962,7 @@ const Dashboard = () => {
             <FaUserMd style={styles.icon} />
             <span>Doctor Info</span>
           </Link>
-        </div>
+        </div> */}
         
         <div style={styles.newsletterBox}>
           <Link to="/newsletter" style={styles.newsletterHeading}>Subscribe to Our Newsletter</Link>
