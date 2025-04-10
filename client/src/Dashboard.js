@@ -1450,9 +1450,9 @@ const styles = {
   },
   
   activePregnancy: {
-    backgroundColor: "#1976d2",
+    backgroundColor: "#B85170",
     color: "#FFFFFF",
-    borderColor: "#1976d2",
+    borderColor: "#B85170",
     boxShadow: "0 8px 18px rgba(25, 118, 210, 0.25)",
   },
   
