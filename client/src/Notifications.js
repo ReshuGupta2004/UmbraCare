@@ -57,7 +57,6 @@ const Notifications = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.overlay}></div>
       <div style={styles.notificationsContainer}>
         <h2 style={styles.heading}>Notifications</h2>
         {error && <p style={styles.error}>{error}</p>}
@@ -65,30 +64,32 @@ const Notifications = () => {
         {notifications.length === 0 ? (
           <p style={styles.info}>No notifications available.</p>
         ) : (
-          <ul style={styles.notificationList}>
-            {notifications.map((notification) => (
-              <li key={notification._id} style={{
-                ...styles.notificationItem,
-                backgroundColor: notification.isRead ? '#f0f0f0' : '#f9f9f9',
-                borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #B15870'
-              }}>
-                <strong>{notification.type === 'medication_reminder' ? 'Medication Reminder' : 'Appointment Reminder'}:</strong> {notification.message}
-                <br />
-                <small>{new Date(notification.createdAt).toLocaleString()}</small>
-                <div style={styles.notificationActions}>
-                  {!notification.isRead && (
-                    <button 
-                      onClick={() => markAsRead(notification._id)} 
-                      style={styles.markReadButton}
-                    >
-                      Mark as Read
-                    </button>
-                  )}
-                  {notification.isRead && <span style={styles.readStatus}>Read</span>}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div style={styles.notificationScrollContainer}>
+            <ul style={styles.notificationList}>
+              {notifications.map((notification) => (
+                <li key={notification._id} style={{
+                  ...styles.notificationItem,
+                  backgroundColor: notification.isRead ? '#f0f0f0' : '#f9f9f9',
+                  borderLeft: notification.isRead ? '1px solid #ddd' : '3px solid #B15870'
+                }}>
+                  <strong>{notification.type === 'medication_reminder' ? 'Medication Reminder' : 'Appointment Reminder'}:</strong> {notification.message}
+                  <br />
+                  <small>{new Date(notification.createdAt).toLocaleString()}</small>
+                  <div style={styles.notificationActions}>
+                    {!notification.isRead && (
+                      <button 
+                        onClick={() => markAsRead(notification._id)} 
+                        style={styles.markReadButton}
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                    {notification.isRead && <span style={styles.readStatus}>Read</span>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>
@@ -110,19 +111,20 @@ const styles = {
     backgroundRepeat: 'no-repeat',
     position: 'relative',
     zIndex: 1,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(253, 232, 233, 0.7)',
-    zIndex: -1,
+    '::before': { // Changed from separate overlay div to pseudo-element to match PregnancyPostpartumTracker
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(253, 232, 233, 0.7)', // Matches PregnancyPostpartumTracker
+      zIndex: -1,
+    }
   },
   notificationsContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Added transparency to the background
-    backdropFilter: 'blur(5px)', // Optional: adds a slight blur effect for better readability
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(5px)',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
@@ -150,16 +152,21 @@ const styles = {
   },
   success: {
     fontSize: '16px',
-    backgroundColor: '#E7E5FF', // Changed from implied green to purple
-    color: '#3D348B', // Changed from #4CAF50 (green) to dark purple
+    backgroundColor: '#E7E5FF',
+    color: '#3D348B',
     marginBottom: '20px',
-    padding: '10px', // Added padding for better appearance
-    borderRadius: '5px', // Added border radius for consistency
+    padding: '10px',
+    borderRadius: '5px',
+  },
+  notificationScrollContainer: { // New style for scrollable container
+    maxHeight: '450px', // Matches PregnancyPostpartumTracker and PeriodTracker
+    overflowY: 'auto',
+    textAlign: 'left',
   },
   notificationList: {
     listStyleType: 'none',
     padding: 0,
-    textAlign: 'left',
+    margin: 0, // Adjusted to fit within scroll container
   },
   notificationItem: {
     padding: '15px',

@@ -200,16 +200,19 @@ const styles = {
   },
   navLinks: { 
     display: 'flex', 
+    justifyContent: 'space-between', // Yeh ensure karta hai ki har link ke beech equal space ho
     alignItems: 'center', 
-    gap: '20px' 
+    flex: 1, // Yeh navbar ke baki space ko cover karta hai
+    marginLeft: '20px', // Logo ke baad thodi si space ke liye
   },
   navLink: { 
     color: '#fff', 
     textDecoration: 'none', 
     fontSize: '16px', 
     transition: 'color 0.3s, background-color 0.3s', 
-    padding: '5px 10px', 
-    borderRadius: '5px' 
+    padding: '5px 15px', // Thodi si extra padding for better look
+    borderRadius: '5px',
+    whiteSpace: 'nowrap', // Yeh ensure karta hai ki text wrap na ho
   },
   activeLink: { 
     backgroundColor: '#fff', 
@@ -225,7 +228,8 @@ const styles = {
     borderRadius: '5px', 
     cursor: 'pointer', 
     fontSize: '16px', 
-    transition: 'background-color 0.3s' 
+    transition: 'background-color 0.3s',
+    marginLeft: '20px', // Logout button ke liye thodi si space
   },
 };
 

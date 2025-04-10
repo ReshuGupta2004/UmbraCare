@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaEdit } from 'react-icons/fa';
 import { toast, Toaster } from 'react-hot-toast';
+
 const PregnancyPostpartumTracker = () => {
   const [mode, setMode] = useState('pregnancy');
   const [week, setWeek] = useState('');
@@ -37,12 +38,9 @@ const PregnancyPostpartumTracker = () => {
     const insights = `Week ${week}: ${fetalInsights}`;
   
     try {
-      // Get prediction from ML model
       const predictionResponse = await fetch("https://pregnancy-model-api.onrender.com/predict", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           age: parseFloat(age),
           systolic_bp: parseFloat(systolicBP),
@@ -60,7 +58,6 @@ const PregnancyPostpartumTracker = () => {
         riskLevel = `\nPredicted Risk Level: ${predictionData.risk}`;
       }
   
-      // Save to our backend
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found. Please log in again.');
   
@@ -84,7 +81,6 @@ const PregnancyPostpartumTracker = () => {
       setShowPopup(true);
       setTimeout(() => setShowPopup(false), 3000);
   
-      // Reset form
       setWeek('');
       setAge('');
       setSystolicBP('');
@@ -93,7 +89,6 @@ const PregnancyPostpartumTracker = () => {
       setBodyTemp('');
       setHeartRate('');
   
-      // Refresh records
       fetchPregnancyRecords();
     } catch (error) {
       console.error("Error:", error);
@@ -124,8 +119,10 @@ const PregnancyPostpartumTracker = () => {
         headers: { 'x-auth-token': token }
       });
       fetchPregnancyRecords();
+      toast.success('Record deleted successfully!');
     } catch (error) {
       console.error("Error deleting record:", error);
+      toast.error(`Error: ${error.message}`);
     }
   };
   
@@ -175,14 +172,13 @@ const PregnancyPostpartumTracker = () => {
     }
   };
   
-  // Add useEffect to fetch records on component mount
   useEffect(() => {
     fetchPregnancyRecords();
   }, []);
   
   const handlePostpartumSubmit = (e) => {
     e.preventDefault();
-    const today = new Date('2025-03-22');
+    const today = new Date();
     const diffTime = Math.abs(today - deliveryDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const weeksSinceDelivery = Math.floor(diffDays / 7);
@@ -259,7 +255,7 @@ const PregnancyPostpartumTracker = () => {
         </div>
 
         {mode === 'pregnancy' && (
-          <form onSubmit={handlePregnancySubmit} style={styles.form}>
+          <form onSubmit={editingRecord ? handleUpdateRecord : handlePregnancySubmit} style={styles.form}>
             <div style={styles.formGroup}>
               <label style={styles.highlightedLabel}>Current Week of Pregnancy:</label>
               <input
@@ -347,7 +343,25 @@ const PregnancyPostpartumTracker = () => {
               />
             </div>
 
-            <button type="submit" style={styles.button}>Get Insights</button>
+            <button type="submit" style={styles.button}>{editingRecord ? 'Update Record' : 'Get Insights'}</button>
+            {editingRecord && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setEditingRecord(null);
+                  setWeek('');
+                  setAge('');
+                  setSystolicBP('');
+                  setDiastolicBP('');
+                  setBloodSugar('');
+                  setBodyTemp('');
+                  setHeartRate('');
+                }}
+                style={styles.cancelButton}
+              >
+                Cancel Edit
+              </button>
+            )}
           </form>
         )}
 
@@ -369,7 +383,11 @@ const PregnancyPostpartumTracker = () => {
                 />
               </div>
               {showDeliveryCalendar && (
-                <Calendar onChange={(date) => { setDeliveryDate(date); setShowDeliveryCalendar(false); }} value={deliveryDate} style={styles.calendar} />
+                <Calendar 
+                  onChange={(date) => { setDeliveryDate(date); setShowDeliveryCalendar(false); }} 
+                  value={deliveryDate} 
+                  style={styles.calendar} 
+                />
               )}
             </div>
             <button type="submit" style={styles.button}>Track Recovery</button>
@@ -380,7 +398,14 @@ const PregnancyPostpartumTracker = () => {
           <form onSubmit={handleMedicationSubmit} style={styles.form}>
             <div style={styles.formGroup}>
               <label style={styles.highlightedLabel}>Medication Reminder:</label>
-              <input type="text" value={medication} onChange={(e) => setMedication(e.target.value)} style={styles.input} placeholder="e.g., Take Follicle Stimulating Hormone at 8 AM" required />
+              <input 
+                type="text" 
+                value={medication} 
+                onChange={(e) => setMedication(e.target.value)} 
+                style={styles.input} 
+                placeholder="e.g., Take Follicle Stimulating Hormone at 8 AM" 
+                required 
+              />
             </div>
             <div style={styles.formGroup}>
               <label style={styles.highlightedLabel}>Next Appointment:</label>
@@ -398,13 +423,13 @@ const PregnancyPostpartumTracker = () => {
                 />
               </div>
               {showAppointmentCalendar && (
-                <Calendar
+                <Calendar 
                   onChange={(date) => {
                     setAppointment(date.toDateString());
                     setShowAppointmentCalendar(false);
-                  }}
-                  value={appointment ? new Date(appointment) : new Date()}
-                  style={styles.calendar}
+                  }} 
+                  value={appointment ? new Date(appointment) : new Date()} 
+                  style={styles.calendar} 
                 />
               )}
             </div>
@@ -416,7 +441,13 @@ const PregnancyPostpartumTracker = () => {
           <form onSubmit={handleMenopauseSubmit} style={styles.form}>
             <div style={styles.formGroup}>
               <label style={styles.highlightedLabel}>Symptoms (e.g., hot flashes, mood swings):</label>
-              <textarea value={menopauseSymptoms} onChange={(e) => setMenopauseSymptoms(e.target.value)} style={styles.textarea} placeholder="Enter your symptoms here..." required />
+              <textarea 
+                value={menopauseSymptoms} 
+                onChange={(e) => setMenopauseSymptoms(e.target.value)} 
+                style={styles.textarea} 
+                placeholder="Enter your symptoms here..." 
+                required 
+              />
             </div>
             <button type="submit" style={styles.button}>Get Guidance</button>
           </form>
@@ -429,41 +460,42 @@ const PregnancyPostpartumTracker = () => {
           </div>
         )}
 
-        {/* Pregnancy Records List */}
         {mode === 'pregnancy' && pregnancyRecords.length > 0 && (
           <div style={styles.recordsContainer}>
             <h3 style={styles.recordsTitle}>Your Pregnancy Records</h3>
-            <div style={styles.recordsList}>
-              {pregnancyRecords.map((record) => (
-                <div key={record._id} style={styles.recordCard}>
-                  <div style={styles.recordHeader}>
-                    <h4 style={styles.recordWeek}>Week {record.week}</h4>
-                    <div style={styles.recordActions}>
-                      <button
-                        onClick={() => handleEditRecord(record)}
-                        style={styles.editButton}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteRecord(record._id)}
-                        style={styles.deleteButton}
-                      >
-                        Delete
-                      </button>
+            <div style={styles.entriesSection}>
+              <ul style={styles.entriesList}>
+                {pregnancyRecords.map((record) => (
+                  <li key={record._id} style={styles.entryItem}>
+                    <div style={styles.recordHeader}>
+                      <h4 style={{ ...styles.recordWeek, color: '#B85170' }}>Week {record.week}</h4>
+                      <div style={styles.actionButtons}>
+                        <button 
+                          onClick={() => handleEditRecord(record)} 
+                          style={styles.editButton}
+                        >
+                          <FaEdit /> Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteRecord(record._id)} 
+                          style={styles.deleteButton}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <div style={styles.recordDetails}>
-                    <p><strong>Age:</strong> {record.age}</p>
-                    <p><strong>Blood Pressure:</strong> {record.systolicBP}/{record.diastolicBP} mmHg</p>
-                    <p><strong>Blood Sugar:</strong> {record.bloodSugar} mg/dL</p>
-                    <p><strong>Body Temperature:</strong> {record.bodyTemp}°C</p>
-                    <p><strong>Heart Rate:</strong> {record.heartRate} bpm</p>
-                    <p><strong>Risk Factor:</strong> {record.riskFactor}</p>
-                    <p style={styles.recordInsights}>{record.insights}</p>
-                  </div>
-                </div>
-              ))}
+                    <div style={styles.recordDetails}>
+                      <p><span style={styles.labelStyle}>Age:</span> {record.age}</p>
+                      <p><span style={styles.labelStyle}>Blood Pressure:</span> {record.systolicBP}/{record.diastolicBP} mmHg</p>
+                      <p><span style={styles.labelStyle}>Blood Sugar:</span> {record.bloodSugar} mg/dL</p>
+                      <p><span style={styles.labelStyle}>Body Temperature:</span> {record.bodyTemp}°C</p>
+                      <p><span style={styles.labelStyle}>Heart Rate:</span> {record.heartRate} bpm</p>
+                      <p><span style={styles.labelStyle}>Risk Factor:</span> {record.riskFactor}</p>
+                      <p style={styles.recordInsights}>{record.insights}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
@@ -471,11 +503,7 @@ const PregnancyPostpartumTracker = () => {
       <Toaster 
         position="top-right"
         reverseOrder={false}
-        toastOptions={{
-          style: {
-            zIndex: 9999,
-          },
-        }}
+        toastOptions={{ style: { zIndex: 9999 } }}
       />
     </div>
   );
@@ -508,17 +536,16 @@ const styles = {
     }
   },
   trackerContainer: {
-    // backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(5px)',
     padding: '40px',
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
     border: '2px solid #B85170',
     width: '100%',
-    maxWidth: '1000px',
+    maxWidth: '600px',
     position: 'relative',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Added transparency to the background
-    backdropFilter: 'blur(5px)', // Optional: adds a slight blur effect for better readability
   },
   heading: {
     fontSize: '28px',
@@ -557,7 +584,7 @@ const styles = {
     alignItems: 'flex-start',
     gap: '5px',
   },
-  highlightedLabel: { // Updated to include all specified labels
+  highlightedLabel: {
     fontSize: '16px',
     color: '#B85170',
   },
@@ -610,6 +637,17 @@ const styles = {
     textDecoration: 'none',
     textAlign: 'center',
   },
+  cancelButton: {
+    backgroundColor: '#ccc',
+    color: '#333',
+    padding: '10px 20px',
+    fontSize: '16px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+    marginTop: '10px',
+  },
   result: {
     marginTop: '20px',
     fontSize: '16px',
@@ -635,20 +673,27 @@ const styles = {
   },
   recordsTitle: {
     fontSize: '20px',
-    color: '#ff8c00',
+    color: '#B85170',
     marginBottom: '20px',
     textAlign: 'center',
   },
-  recordsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
+  entriesSection: {
+    marginTop: '10px',
+    textAlign: 'left',
+    height: '300px',
+    overflowY: 'auto',
   },
-  recordCard: {
-    padding: '15px',
-    border: '1px solid #eee',
-    borderRadius: '8px',
-    backgroundColor: '#fff',
+  entriesList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  entryItem: {
+    padding: '10px',
+    borderBottom: '1px solid #eee',
+    marginBottom: '5px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '4px',
   },
   recordHeader: {
     display: 'flex',
@@ -656,34 +701,41 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px',
   },
+  recordDetails: {
+    flex: 1,
+  },
+  labelStyle: {
+    fontWeight: '400',
+    color: '#B85170',
+  },
   recordWeek: {
     fontSize: '18px',
-    color: '#333',
-    margin: '0',
+    margin: 0,
   },
-  recordActions: {
+  actionButtons: {
     display: 'flex',
     gap: '10px',
   },
   editButton: {
-    padding: '5px 10px',
-    backgroundColor: '#ff8c00',
-    color: '#fff',
+    backgroundColor: '#4a90e2',
+    color: 'white',
     border: 'none',
     borderRadius: '4px',
+    padding: '5px 10px',
     cursor: 'pointer',
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
   },
   deleteButton: {
-    padding: '5px 10px',
-    backgroundColor: '#ff4444',
-    color: '#fff',
+    backgroundColor: '#ff4d4d',
+    color: 'white',
     border: 'none',
     borderRadius: '4px',
+    padding: '5px 10px',
     cursor: 'pointer',
-  },
-  recordDetails: {
     fontSize: '14px',
-    color: '#666',
   },
   recordInsights: {
     marginTop: '10px',
