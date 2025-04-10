@@ -490,8 +490,10 @@ const Dashboard = () => {
               />
               
               {predictionData?.prediction?.currentDayOfCycle && (
+                <div style={styles.phaseIndicators} >
                 <div style={styles.phaseIndicator}>
                   {getCurrentPhase(predictionData.prediction.currentDayOfCycle)}
+                </div>
                 </div>
               )}
             </div>
@@ -503,7 +505,7 @@ const Dashboard = () => {
           {/* Pregnancy Journey */}
           <div style={styles.cardContainer}>
             <div style={styles.cardHeader}>
-              <h3 style={styles.cardTitle}>Pregnancy Journey</h3>
+              <h3 style={styles.cardTitle}>Pregnancy Tracker</h3>
             </div>
             <div style={styles.graphCard}>
               <div style={{...styles.graphCard, textAlign: 'center', position: 'relative'}}>
@@ -535,7 +537,7 @@ const Dashboard = () => {
                   top: '20%',
                   right: '10%',
                   backgroundColor: 'white',
-                  color: '#FF8C00',
+                  color: '#B85170',
                   borderRadius: '50%',
                   width: '60px',
                   height: '60px',
@@ -544,28 +546,34 @@ const Dashboard = () => {
                   justifyContent: 'center',
                   fontWeight: 'bold',
                   fontSize: '22px',
-                  boxShadow: '0 4px 12px rgba(255, 140, 0, 0.3)',
-                  border: '3px solid #FF8C00',
+                  boxShadow: '0 4px 12px rgba(184, 81, 112, 0.3)',
+                  border: '3px solid #B85170',
                   zIndex: 20
                 }}>
                   {week}
                 </div>
-                
+                <div  style={styles.phaseIndicators} >
                 <p style={{ 
                   marginTop: '15px',
-                  color: '#FF8C00',
+                  color: '#B85170',
                   fontSize: '14px',
                   fontWeight: '500',
                   padding: '0 20px',
                   position: 'relative',
                   zIndex: 20,
-                  backgroundColor: 'rgba(255, 236, 219, 0.7)',
+                  width: '350px',
+                  height: '25px',
+                 
+
                   borderRadius: '8px',
-                  margin: '15px auto 0',
+                  // margin: '15px auto 0',
                   maxWidth: '90%'
                 }}>
                   {pregnancyInsights}
                 </p>
+
+                </div>
+
               </div>
             </div>
           </div>
@@ -818,8 +826,9 @@ const Dashboard = () => {
 </div>
 
 
+        </div>
           {/* Predicted Pregnancy Risk */}
-          <div className="image-container" style={{ display: 'flex', gap: '50px', justifyContent: 'end', alignItems: 'center', maxWidth: '500px' }}>
+          <div className="image-container" style={{ display: 'flex', gap: '50px', justifyContent: 'end', alignItems: 'center', maxWidth: '500px' , position: 'relative', right: '130px' , paddingBottom: '20px'}}>
             <div style={styles.cardContainer}>
               <div style={styles.cardHeader}>
                 <h3 style={styles.cardTitle}>Predicted Pregnancy Risk</h3>
@@ -877,10 +886,9 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="image-container" style={{ width: '100%', maxWidth: '350px', margin: '0 auto' }}>
-              <img src="/uuu.jpg" alt="Pregnancy Risk" style={{ width: '350px', height: 'auto', borderRadius: '8px' }} />
+              <img src="/uuu.jpg" alt="Pregnancy Risk" style={{ width: '750px', height: 'auto', borderRadius: '8px' , position: 'relative', left: '40px' }} />
             </div>
           </div>
-        </div>
 
         <div style={styles.buttonGrid}>
           <Link to="/pregnancy-postpartum-tracker" style={styles.gridButton}>
@@ -1117,7 +1125,26 @@ const styles = {
     fontSize: '14px',
     color: '#B85170',
     fontWeight: '600',
-    marginTop: '10px'
+    marginTop: '10px',
+    marginLeft: '10px',
+    marginRight: '10px',
+    borderTop: '1px solid #B85170',
+    paddingTop: '10px',
+    paddingBottom: '10px',
+    borderRadius: '10px',
+    backgroundColor: '#FFF5F5',
+    border: '1px solid #B85170',
+    width: '350px',
+    height: '25px',
+  },
+  phaseIndicators: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '10px',
+    borderTop: '1px dashed #B85170',
+    paddingTop: '10px',
+    width: '100%',
   }
 };
 
